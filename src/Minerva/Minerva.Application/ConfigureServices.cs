@@ -11,9 +11,11 @@ public static class ConfigureServices
         {
             _ = options.UseNpgsql(builder =>
             {
-
+                
             });
         });
+
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ConfigureServices).Assembly));
 
         return services;
     }
