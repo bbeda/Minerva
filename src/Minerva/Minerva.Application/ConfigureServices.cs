@@ -1,21 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Minerva.Application.Common;
+using Minerva.Application.Features.TaskItems;
 using Minerva.Application.Infrastructure;
 
 namespace Minerva.Application;
 public static class ConfigureServices
 {
-    public static IServiceCollection AddApplicationServices(IServiceCollection services)
+    private const string EntitiesStoreConnectionString = "EntitiesStore";
+
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         _ = services.AddDbContext<DataContext>(options =>
         {
-            _ = options.UseNpgsql(builder =>
-            {
-                
-            });
+            _ = options.UseNpgsql(configuration.GetConnectionString(EntitiesStoreConnectionString));
         });
 
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ConfigureServices).Assembly));
+        _ = services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ConfigureServices).Assembly));
+
+        _ = services.AddScoped<ITaskItemRepository, TaskItemRepository>();
+
+        _ = services.AddScoped<IUnitOfWork, DataContext>();
 
         return services;
     }
