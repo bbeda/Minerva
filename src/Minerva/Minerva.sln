@@ -9,7 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minerva.WebApp.Client", "Mi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minerva.Application", "Minerva.Application\Minerva.Application.csproj", "{CBCDA0F7-090C-495C-9647-CC28DC5EB444}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Minerva.Application.UnitTests", "Minerva.Application.UnitTests\Minerva.Application.UnitTests.csproj", "{31B309C0-FBF1-4C7C-B4EF-4CB216622CB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minerva.Application.UnitTests", "Minerva.Application.UnitTests\Minerva.Application.UnitTests.csproj", "{31B309C0-FBF1-4C7C-B4EF-4CB216622CB9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{348C2027-87F1-44B9-A37C-8F37B62AA60C}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

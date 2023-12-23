@@ -13,5 +13,5 @@ internal class DataContext(DbContextOptions<DataContext> options) : DbContext(op
         base.OnModelCreating(modelBuilder);
     }
 
-    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => await SaveChangesAsync(cancellationToken);
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => await SaveChangesAsync(cancellationToken);
 }
