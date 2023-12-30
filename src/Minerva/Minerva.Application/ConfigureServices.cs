@@ -21,7 +21,10 @@ public static class ConfigureServices
 
         _ = services.AddScoped<ITaskItemRepository, TaskItemRepository>();
 
-        _ = services.AddScoped<IUnitOfWork, DataContext>();
+        _ = services.AddScoped<IUnitOfWork>(sp =>
+        {
+            return sp.GetRequiredService<DataContext>();
+        });
 
         return services;
     }

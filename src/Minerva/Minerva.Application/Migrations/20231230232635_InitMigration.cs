@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Minerva.Application.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class InitMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,6 +26,11 @@ namespace Minerva.Application.Migrations
                 {
                     table.PrimaryKey("PK_TaskItems", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskItems_TenantId",
+                table: "TaskItems",
+                column: "TenantId");
         }
 
         /// <inheritdoc />

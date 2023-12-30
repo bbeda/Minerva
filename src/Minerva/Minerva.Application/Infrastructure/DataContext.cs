@@ -9,9 +9,9 @@ internal class DataContext(DbContextOptions<DataContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
+        _ = modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => await SaveChangesAsync(cancellationToken);
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => await base.SaveChangesAsync(cancellationToken);
 }

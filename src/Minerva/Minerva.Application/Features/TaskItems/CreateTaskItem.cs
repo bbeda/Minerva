@@ -2,7 +2,7 @@
 using Minerva.Application.Common;
 
 namespace Minerva.Application.Features.TaskItems;
-internal class CreateTaskItemCommand : IRequest<CommandResult<TaskItem>>
+public class CreateTaskItemCommand : IRequest<CommandResult<TaskItem>>
 {
     public string Title { get; set; } = default!;
     public string Description { get; set; } = default!;

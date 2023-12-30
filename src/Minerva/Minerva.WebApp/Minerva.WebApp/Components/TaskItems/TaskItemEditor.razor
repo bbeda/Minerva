@@ -1,0 +1,50 @@
+﻿@using MediatR;
+@using Minerva.Application.Features.TaskItems;
+
+@implements IDialogContentComponent<TaskItemModel>
+@inject IMediator mediator;
+
+<FluentLabel Typo="Typography.H3">TaskItemEditor</FluentLabel>
+<FluentLabel Typo="Typography.H4">Id: @Content?.Id</FluentLabel>
+
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent" @onclick="SaveAsync">Save</FluentButton>
+    <FluentButton Appearance="Appearance.Neutral" @onclick="Cancel">Cancel</FluentButton>
+</FluentDialogFooter>
+
+@code {
+
+    [Parameter]
+    public TaskItemModel Content { get; set; } = default!;
+
+    [CascadingParameter]
+    public FluentDialog? Dialog { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Content.Title = "My Task";
+        await base.OnInitializedAsync();
+    }
+
+    private async void SaveAsync(MouseEventArgs e)
+    {
+        var result = await mediator.Send(new CreateTaskItemCommand()
+            {
+                Title = Content!.Title,
+                Description = "abc"
+            });
+
+        if (result.IsSuccess)
+        {
+            await Dialog?.CloseAsync(Content!);
+        }
+        else
+        {
+            await Dialog?.CancelAsync();
+        }
+    }
+    private async void Cancel(MouseEventArgs e)
+    {
+        await Dialog.CancelAsync();
+    }
+}

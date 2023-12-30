@@ -9,8 +9,8 @@ internal class EntityTypeConfigurationBase<T> : IEntityTypeConfiguration<T> wher
         _ = builder.HasKey(entity => entity.Id);
 
         _ = builder.Property(entity => entity.CreatedAt)
-            .IsRequired()
-            .ValueGeneratedOnAdd();
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .IsRequired();
 
         _ = builder.Property(entity => entity.TenantId)
             .IsRequired();
