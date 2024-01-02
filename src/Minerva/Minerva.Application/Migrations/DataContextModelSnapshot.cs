@@ -34,7 +34,6 @@ namespace Minerva.Application.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateOnly?>("DueDate")

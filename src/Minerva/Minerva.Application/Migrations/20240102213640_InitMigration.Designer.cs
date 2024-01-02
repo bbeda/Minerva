@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Minerva.Application.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231230232635_InitMigration")]
+    [Migration("20240102213640_InitMigration")]
     partial class InitMigration
     {
         /// <inheritdoc />
@@ -33,10 +33,10 @@ namespace Minerva.Application.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateOnly?>("DueDate")

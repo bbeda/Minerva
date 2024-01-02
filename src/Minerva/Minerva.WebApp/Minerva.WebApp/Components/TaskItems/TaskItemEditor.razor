@@ -1,18 +1,37 @@
-﻿@using MediatR;
-@using Minerva.Application.Features.TaskItems;
+﻿@using MediatR
+@using Minerva.Application.Features.TaskItems
 
 @implements IDialogContentComponent<TaskItemModel>
-@inject IMediator mediator;
+@inject IMediator mediator
+@inject IJSRuntime jsRuntime
 
-<FluentLabel Typo="Typography.H3">TaskItemEditor</FluentLabel>
-<FluentLabel Typo="Typography.H4">Id: @Content?.Id</FluentLabel>
+<EditForm itemref="editForm" EditContext="editContext" name="TaskItemEditor" id="TaskItemEditor" OnValidSubmit="@Submit">
+    <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Start">
+        <DataAnnotationsValidator />
+        <FluentTextField @bind-Value="Content.Title" Placeholder="Task Name" style="width:100%" />
+        <ValidationMessage style="color:darkred" For="() => Content.Title"></ValidationMessage>
 
-<FluentDialogFooter>
-    <FluentButton Appearance="Appearance.Accent" @onclick="SaveAsync">Save</FluentButton>
-    <FluentButton Appearance="Appearance.Neutral" @onclick="Cancel">Cancel</FluentButton>
-</FluentDialogFooter>
+        <FluentTextArea @bind-Value="Content.Description" Placeholder="Description" style="width:100%" />
+        <FluentDatePicker @bind-Value="Content.DueDate"></FluentDatePicker>
+
+        <ValidationSummary></ValidationSummary>
+
+    </FluentStack>
+
+    <FluentDialogFooter>
+        <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" FormId="TaskItemEditor" Disabled="!canSubmit">Save</FluentButton>
+        <FluentButton Appearance="Appearance.Neutral" @onclick="Cancel">Cancel</FluentButton>
+    </FluentDialogFooter>
+</EditForm>
 
 @code {
+    private EditForm? editForm;
+
+    private EditContext editContext = default!;
+
+    private bool saving = false;
+
+    private bool canSubmit => !saving;
 
     [Parameter]
     public TaskItemModel Content { get; set; } = default!;
@@ -20,31 +39,52 @@
     [CascadingParameter]
     public FluentDialog? Dialog { get; set; }
 
+    private ValidationMessageStore validationMessageStore = default!;
+
     protected override async Task OnInitializedAsync()
     {
-        Content.Title = "My Task";
+        Content = Content ?? new TaskItemModel();
+        editContext = new EditContext(Content);
+
+        validationMessageStore = new ValidationMessageStore(editContext);
+
         await base.OnInitializedAsync();
     }
 
-    private async void SaveAsync(MouseEventArgs e)
-    {
-        var result = await mediator.Send(new CreateTaskItemCommand()
-            {
-                Title = Content!.Title,
-                Description = "abc"
-            });
-
-        if (result.IsSuccess)
-        {
-            await Dialog?.CloseAsync(Content!);
-        }
-        else
-        {
-            await Dialog?.CancelAsync();
-        }
-    }
     private async void Cancel(MouseEventArgs e)
     {
-        await Dialog.CancelAsync();
+        await Dialog!.CancelAsync();
+    }
+
+    private async void Submit()
+    {
+        if (!editContext.Validate())
+        {
+            return;
+        }
+
+        try
+        {
+            saving = true;
+            var result = await mediator.Send(new CreateTaskItemCommand()
+                {
+                    Title = Content.Title,
+                    Description = Content.Description,
+                    DueDate = Content.DueDate.HasValue ? DateOnly.FromDateTime(Content.DueDate.Value) : null
+                });
+
+            if (result.IsSuccess)
+            {
+                await Dialog?.CloseAsync(Content!);
+            }
+            else
+            {
+                await Dialog?.CancelAsync();
+            }
+        }
+        finally
+        {
+            saving = false;
+        }
     }
 }
