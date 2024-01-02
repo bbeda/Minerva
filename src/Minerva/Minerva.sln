@@ -5,9 +5,14 @@ VisualStudioVersion = 17.9.34321.82
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minerva.Application", "Minerva.Application\Minerva.Application.csproj", "{CBCDA0F7-090C-495C-9647-CC28DC5EB444}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Minerva.WebApp", "Minerva.WebApp\Minerva.WebApp\Minerva.WebApp.csproj", "{984D27E4-1B08-4AF6-8C45-01C4204BCC86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minerva.WebApp", "Minerva.WebApp\Minerva.WebApp\Minerva.WebApp.csproj", "{984D27E4-1B08-4AF6-8C45-01C4204BCC86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Minerva.WebApp.Client", "Minerva.WebApp\Minerva.WebApp.Client\Minerva.WebApp.Client.csproj", "{C3C69D74-193E-4A81-8D99-B0F31A8316B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Minerva.WebApp.Client", "Minerva.WebApp\Minerva.WebApp.Client\Minerva.WebApp.Client.csproj", "{C3C69D74-193E-4A81-8D99-B0F31A8316B9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9167444C-2E19-430D-A6D6-E30F188B639F}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,19 @@
+﻿@rendermode InteractiveServer
+@inject IDialogService DialogService
+
+<FluentIcon Value="@(new Icons.Regular.Size24.AddCircle())" @onclick="ShowAddTaskModalAsync" Color="Color.Fill"></FluentIcon>
+
+<FluentDialogProvider @rendermode="RenderMode.InteractiveServer" />
+
+@code {
+
+    private async void ShowAddTaskModalAsync(MouseEventArgs e)
+    {
+        var dialog = await DialogService.ShowDialogAsync<TaskItemEditor>(new TaskItemModel(),new DialogParameters()
+            {
+                Title = "Add Task"
+            });
+
+        var result = await dialog.Result;
+    }
+}
