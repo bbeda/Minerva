@@ -1,7 +1,40 @@
 ﻿@page "/backlog"
+@using Minerva.WebApp.Components.TaskItems.List
+@using Minerva.Application.Features.TaskItems
+
+@inject MediatR.IMediator mediator
 
 <h3>Backlog</h3>
 
-@code {
+@if (taskItems == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <TaskItemsList TaskItems="taskItems" />
+}
 
+@code {
+    private List<TaskItemListItemModel> taskItems = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = mediator.CreateStream<TaskItemListItem>(new QueryBacklogRequest());
+
+        await foreach (var item in data)
+        {
+            taskItems.Add(new TaskItemListItemModel
+                {
+                    Id = item.Id,
+                    Title = item.Title,
+                    IsCompleted = item.IsCompleted,
+                    CreatedOn = item.CreatedOn,
+                    Description = item.Description,
+                    DueDate = item.DueDate
+                });
+        }
+
+        await base.OnInitializedAsync();
+    }
 }

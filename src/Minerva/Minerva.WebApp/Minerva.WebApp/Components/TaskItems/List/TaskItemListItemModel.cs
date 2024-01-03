@@ -2,7 +2,7 @@
 
 public class TaskItemListItemModel
 {
-    public required string Id { get; init; }
+    public required Guid Id { get; init; }
 
     public required string Title { get; init; }
 
@@ -11,4 +11,6 @@ public class TaskItemListItemModel
     public DateOnly? DueDate { get; init; }
 
     public required DateTimeOffset CreatedOn { get; init; }
+
+    public bool IsCompleted { get; set; }
 }

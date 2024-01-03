@@ -1,7 +1,14 @@
 ﻿<h3>TaskItemsList</h3>
 
-
+<FluentListbox Items="TaskItems">
+    <OptionTemplate>
+        <FluentCheckbox @bind-Checked="@context.IsCompleted" />
+        <span>@context.Title</span>
+    </OptionTemplate>
+</FluentListbox>
 
 @code {
+    [Parameter]
+    public IReadOnlyCollection<TaskItemListItemModel> TaskItems { get; set; }
 
 }
