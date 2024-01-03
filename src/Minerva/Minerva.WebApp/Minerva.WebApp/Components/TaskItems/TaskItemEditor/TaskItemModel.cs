@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Minerva.WebApp.Components.TaskItems;
+namespace Minerva.WebApp.Components.TaskItems.TaskItemEditor;
 
 public class TaskItemModel
 {

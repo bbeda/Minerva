@@ -11,7 +11,7 @@ public class TaskItem : Entity
     public required DateOnly? DueDate { get; set; }
 
     [SetsRequiredMembers]
-    public TaskItem(string title, string description, DateOnly? dueDate)
+    public TaskItem(string title, string? description, DateOnly? dueDate)
     {
         Title = title;
         Description = description;

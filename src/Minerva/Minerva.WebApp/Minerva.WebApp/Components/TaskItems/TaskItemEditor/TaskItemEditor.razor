@@ -5,7 +5,7 @@
 @inject IMediator mediator
 @inject IJSRuntime jsRuntime
 
-<EditForm itemref="editForm" EditContext="editContext" name="TaskItemEditor" id="TaskItemEditor" OnValidSubmit="@Submit">
+<EditForm EditContext="editContext" name="TaskItemEditor" id="TaskItemEditor" OnValidSubmit="@Submit">
     <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Start">
         <DataAnnotationsValidator />
         <FluentTextField @bind-Value="Content.Title" Placeholder="Task Name" style="width:100%" />
@@ -14,7 +14,7 @@
         <FluentTextArea @bind-Value="Content.Description" Placeholder="Description" style="width:100%" />
         <FluentDatePicker @bind-Value="Content.DueDate"></FluentDatePicker>
 
-        <ValidationSummary></ValidationSummary>
+        <ValidationSummary style="color:darkred" />
 
     </FluentStack>
 
@@ -25,8 +25,6 @@
 </EditForm>
 
 @code {
-    private EditForm? editForm;
-
     private EditContext editContext = default!;
 
     private bool saving = false;
@@ -68,18 +66,14 @@
             saving = true;
             var result = await mediator.Send(new CreateTaskItemCommand()
                 {
-                    Title = Content.Title,
+                    Title = Content.Title!,
                     Description = Content.Description,
                     DueDate = Content.DueDate.HasValue ? DateOnly.FromDateTime(Content.DueDate.Value) : null
                 });
 
-            if (result.IsSuccess)
+            if (Dialog is not null)
             {
-                await Dialog?.CloseAsync(Content!);
-            }
-            else
-            {
-                await Dialog?.CancelAsync();
+                await Dialog.CloseAsync();
             }
         }
         finally

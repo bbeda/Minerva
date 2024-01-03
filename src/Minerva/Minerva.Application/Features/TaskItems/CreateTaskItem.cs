@@ -5,7 +5,7 @@ namespace Minerva.Application.Features.TaskItems;
 public class CreateTaskItemCommand : IRequest<CommandResult<TaskItem>>
 {
     public string Title { get; set; } = default!;
-    public string Description { get; set; } = default!;
+    public string? Description { get; set; }
     public DateOnly? DueDate { get; set; }
 }
 
