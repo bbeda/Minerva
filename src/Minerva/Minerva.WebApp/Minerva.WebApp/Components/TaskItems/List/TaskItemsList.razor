@@ -1,14 +1,54 @@
-﻿<h3>TaskItemsList</h3>
-
-<FluentListbox Items="TaskItems">
-    <OptionTemplate>
-        <FluentCheckbox @bind-Checked="@context.IsCompleted" />
-        <span>@context.Title</span>
-    </OptionTemplate>
-</FluentListbox>
+﻿@rendermode InteractiveServer
+<h3>TaskItemsList</h3>
+<FluentStack Orientation="Orientation.Vertical">
+    @foreach (var item in TaskItems)
+    {
+        <FluentCard>
+            <FluentGrid>
+                <FluentGridItem>
+                    @if (item.IsCompleted)
+                    {
+                        <FluentIcon Value="@(new Icons.Filled.Size20.CheckmarkCircle())" @onclick="async ()=>await UncompleteTaskItemAsync(item)" Color="Color.Success"></FluentIcon>
+                    }
+                    else
+                    {
+                        <FluentIcon Value="@(new Icons.Regular.Size20.Circle())" @onclick="async ()=>await CompleteTaskItemAsync(item)"></FluentIcon>
+                    }
+                </FluentGridItem>
+                <FluentGridItem Style="@CompletedStyle(item)">
+                    <FluentLabel Typo="Typography.Subject">@item.Title</FluentLabel>
+                    <FluentLabel Typo="Typography.Body">@item.Description</FluentLabel>
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentCard>
+    }
+</FluentStack>
 
 @code {
     [Parameter]
-    public IReadOnlyCollection<TaskItemListItemModel> TaskItems { get; set; }
+    public ICollection<TaskItemListItemModel> TaskItems { get; set; }
 
+    [Parameter]
+    public Action<TaskItemListItemModel> OnItemChanged { get; set; }
+
+    private string CompletedStyle(TaskItemListItemModel item)
+    {
+        return item.IsCompleted ? "text-decoration: line-through" : "";
+    }
+
+    private async Task UncompleteTaskItemAsync(TaskItemListItemModel item)
+    {
+        item.IsCompleted = false;
+        OnItemChanged?.Invoke(item);
+        await Task.CompletedTask;
+    }
+
+    private async Task CompleteTaskItemAsync(TaskItemListItemModel item)
+    {
+
+        item.IsCompleted = true;
+        TaskItems.Remove(item);
+        OnItemChanged?.Invoke(item);
+        await Task.CompletedTask;
+    }
 }

@@ -1,4 +1,5 @@
-﻿@page "/backlog"
+﻿@rendermode InteractiveServer
+@page "/backlog"
 @using Minerva.WebApp.Components.TaskItems.List
 @using Minerva.Application.Features.TaskItems
 
@@ -12,14 +13,18 @@
 }
 else
 {
-    <TaskItemsList TaskItems="taskItems" />
+    <TaskItemsList TaskItems="taskItems" OnItemChanged="OnItemChanged" />
+    <TaskItemsList TaskItems="completed" OnItemChanged="OnItemChanged" />
 }
 
 @code {
     private List<TaskItemListItemModel> taskItems = new();
+    private List<TaskItemListItemModel> completed = new();
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+
         var data = mediator.CreateStream<TaskItemListItem>(new QueryBacklogRequest());
 
         await foreach (var item in data)
@@ -34,7 +39,20 @@ else
                     DueDate = item.DueDate
                 });
         }
+    }
 
-        await base.OnInitializedAsync();
+    private void OnItemChanged(TaskItemListItemModel item)
+    {
+        if (item.IsCompleted)
+        {
+            completed.Add(item);
+            taskItems.Remove(item);
+        }
+        else
+        {
+            taskItems.Add(item);
+            completed.Remove(item);
+        }
+        StateHasChanged();
     }
 }
