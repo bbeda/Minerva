@@ -1,7 +1,55 @@
-﻿@page "/backlog"
+﻿@rendermode InteractiveServer
+@page "/backlog"
+@using Minerva.WebApp.Components.TaskItems.List
+@using Minerva.Application.Features.TaskItems
+
+@attribute [StreamRendering(true)]
+
+@inject MediatR.IMediator mediator
 
 <h3>Backlog</h3>
 
-@code {
+@if (taskItems == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <TaskItemsList TaskItems="taskItems" />
+}
 
+@code {
+    private List<TaskItemListItemModel> taskItems = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var data = mediator.CreateStream<TaskItemListItem>(new QueryBacklogRequest());
+
+        var taskItemsEnumerator = data.GetAsyncEnumerator();
+        if (await taskItemsEnumerator.MoveNextAsync())
+        {
+            taskItems = new();
+            taskItems.Add(MapTaskListItem(taskItemsEnumerator.Current));
+
+            while (await taskItemsEnumerator.MoveNextAsync())
+            {
+                taskItems.Add(MapTaskListItem(taskItemsEnumerator.Current));
+            }
+        }
+
+        static TaskItemListItemModel MapTaskListItem(TaskItemListItem itemListItem)
+        {
+            return new TaskItemListItemModel
+                {
+                    Id = itemListItem.Id,
+                    Title = itemListItem.Title,
+                    IsCompleted = itemListItem.IsCompleted,
+                    CreatedOn = itemListItem.CreatedOn,
+                    Description = itemListItem.Description,
+                    DueDate = itemListItem.DueDate
+                };
+        }
+    }
 }
