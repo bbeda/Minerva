@@ -1,5 +1,8 @@
 ﻿@rendermode InteractiveServer
-<h3>TaskItemsList</h3>
+@if(!string.IsNullOrEmpty(Title))
+{
+    <FluentLabel Typo="Typography.H3">@Title</FluentLabel>
+}
 <FluentStack Orientation="Orientation.Vertical">
     @foreach (var item in TaskItems)
     {
@@ -31,6 +34,9 @@
     [Parameter]
     public Action<TaskItemListItemModel> OnItemChanged { get; set; }
 
+    [Parameter]
+    public string? Title { get; set; }
+
     private string CompletedStyle(TaskItemListItemModel item)
     {
         return item.IsCompleted ? "text-decoration: line-through" : "";
@@ -47,7 +53,6 @@
     {
 
         item.IsCompleted = true;
-        TaskItems.Remove(item);
         OnItemChanged?.Invoke(item);
         await Task.CompletedTask;
     }

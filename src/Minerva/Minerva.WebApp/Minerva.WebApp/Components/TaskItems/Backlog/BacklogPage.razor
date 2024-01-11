@@ -3,6 +3,8 @@
 @using Minerva.WebApp.Components.TaskItems.List
 @using Minerva.Application.Features.TaskItems
 
+@attribute [StreamRendering(true)]
+
 @inject MediatR.IMediator mediator
 
 <h3>Backlog</h3>
@@ -13,13 +15,11 @@
 }
 else
 {
-    <TaskItemsList TaskItems="taskItems" OnItemChanged="OnItemChanged" />
-    <TaskItemsList TaskItems="completed" OnItemChanged="OnItemChanged" />
+    <TaskItemsList TaskItems="taskItems" />
 }
 
 @code {
-    private List<TaskItemListItemModel> taskItems = new();
-    private List<TaskItemListItemModel> completed = new();
+    private List<TaskItemListItemModel> taskItems = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -27,32 +27,29 @@ else
 
         var data = mediator.CreateStream<TaskItemListItem>(new QueryBacklogRequest());
 
-        await foreach (var item in data)
+        var taskItemsEnumerator = data.GetAsyncEnumerator();
+        if (await taskItemsEnumerator.MoveNextAsync())
         {
-            taskItems.Add(new TaskItemListItemModel
-                {
-                    Id = item.Id,
-                    Title = item.Title,
-                    IsCompleted = item.IsCompleted,
-                    CreatedOn = item.CreatedOn,
-                    Description = item.Description,
-                    DueDate = item.DueDate
-                });
-        }
-    }
+            taskItems = new();
+            taskItems.Add(MapTaskListItem(taskItemsEnumerator.Current));
 
-    private void OnItemChanged(TaskItemListItemModel item)
-    {
-        if (item.IsCompleted)
-        {
-            completed.Add(item);
-            taskItems.Remove(item);
+            while (await taskItemsEnumerator.MoveNextAsync())
+            {
+                taskItems.Add(MapTaskListItem(taskItemsEnumerator.Current));
+            }
         }
-        else
+
+        static TaskItemListItemModel MapTaskListItem(TaskItemListItem itemListItem)
         {
-            taskItems.Add(item);
-            completed.Remove(item);
+            return new TaskItemListItemModel
+                {
+                    Id = itemListItem.Id,
+                    Title = itemListItem.Title,
+                    IsCompleted = itemListItem.IsCompleted,
+                    CreatedOn = itemListItem.CreatedOn,
+                    Description = itemListItem.Description,
+                    DueDate = itemListItem.DueDate
+                };
         }
-        StateHasChanged();
     }
 }
