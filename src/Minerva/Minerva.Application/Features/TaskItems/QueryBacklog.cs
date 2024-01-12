@@ -11,14 +11,16 @@ internal class QueryBacklogRequestHandler(DataContext dataContext) : IStreamRequ
 {
     public IAsyncEnumerable<TaskItemListItem> Handle(QueryBacklogRequest request, CancellationToken cancellationToken)
     {
-        return dataContext.TaskItems.Select(ti => new TaskItemListItem
-        {
-            Id = ti.Id,
-            Title = ti.Title,
-            Description = ti.Description,
-            DueDate = ti.DueDate,
-            CreatedOn = ti.CreatedAt,
-            IsCompleted = false
-        }).AsAsyncEnumerable();
+        return dataContext.TaskItems
+            .Where(ti => ti.Status != TaskItemStatus.Complete)
+            .Select(ti => new TaskItemListItem
+            {
+                Id = ti.Id,
+                Title = ti.Title,
+                Description = ti.Description,
+                DueDate = ti.DueDate,
+                CreatedOn = ti.CreatedAt,
+                IsCompleted = false
+            }).AsAsyncEnumerable();
     }
 }

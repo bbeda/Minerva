@@ -1,38 +1,52 @@
-﻿@rendermode InteractiveServer
-@if(!string.IsNullOrEmpty(Title))
+﻿@using MediatR
+@using Minerva.Application.Features.TaskItems
+
+@rendermode InteractiveServer
+
+@inject IMediator mediator
+
+@if (!string.IsNullOrEmpty(Title))
 {
     <FluentLabel Typo="Typography.H3">@Title</FluentLabel>
 }
 <FluentStack Orientation="Orientation.Vertical">
-    @foreach (var item in TaskItems)
+    @if (TaskItems == null)
     {
-        <FluentCard>
-            <FluentGrid>
-                <FluentGridItem>
-                    @if (item.IsCompleted)
-                    {
-                        <FluentIcon Value="@(new Icons.Filled.Size20.CheckmarkCircle())" @onclick="async ()=>await UncompleteTaskItemAsync(item)" Color="Color.Success"></FluentIcon>
-                    }
-                    else
-                    {
-                        <FluentIcon Value="@(new Icons.Regular.Size20.Circle())" @onclick="async ()=>await CompleteTaskItemAsync(item)"></FluentIcon>
-                    }
-                </FluentGridItem>
-                <FluentGridItem Style="@CompletedStyle(item)">
-                    <FluentLabel Typo="Typography.Subject">@item.Title</FluentLabel>
-                    <FluentLabel Typo="Typography.Body">@item.Description</FluentLabel>
-                </FluentGridItem>
-            </FluentGrid>
-        </FluentCard>
+        <FluentLabel Typo="Typography.H4">Loading...</FluentLabel>
     }
+    else
+    {
+        @foreach (var item in TaskItems)
+        {
+            <FluentCard>
+                <FluentGrid>
+                    <FluentGridItem>
+                        @if (item.IsCompleted)
+                        {
+                            <FluentIcon Value="@(new Icons.Filled.Size20.CheckmarkCircle())" @onclick="async ()=>await UncompleteTaskItemAsync(item)" Color="Color.Success"></FluentIcon>
+                        }
+                        else
+                        {
+                            <FluentIcon Value="@(new Icons.Regular.Size20.Circle())" @onclick="async ()=>await CompleteTaskItemAsync(item)"></FluentIcon>
+                        }
+                    </FluentGridItem>
+                    <FluentGridItem Style="@CompletedStyle(item)">
+                        <FluentLabel Typo="Typography.Subject">@item.Title</FluentLabel>
+                        <FluentLabel Typo="Typography.Body">@item.Description</FluentLabel>
+                    </FluentGridItem>
+                </FluentGrid>
+            </FluentCard>
+        }
+    }
+
 </FluentStack>
 
 @code {
     [Parameter]
-    public ICollection<TaskItemListItemModel> TaskItems { get; set; }
+    public ICollection<TaskItemListItemModel>? TaskItems { get; set; }
 
     [Parameter]
-    public Action<TaskItemListItemModel> OnItemChanged { get; set; }
+    public Action<TaskItemListItemModel>? OnItemChanged { get; set; }
 
     [Parameter]
     public string? Title { get; set; }
@@ -51,9 +65,11 @@
 
     private async Task CompleteTaskItemAsync(TaskItemListItemModel item)
     {
-
-        item.IsCompleted = true;
-        OnItemChanged?.Invoke(item);
-        await Task.CompletedTask;
+        var result = await mediator.Send(new CompleteTaskItemCommand() { TaskItemId = item.Id });
+        if (result.IsSuccess)
+        {
+            item.IsCompleted = true;
+            OnItemChanged?.Invoke(item);
+        }
     }
 }
