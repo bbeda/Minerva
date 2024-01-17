@@ -1,5 +1,6 @@
-﻿@rendermode InteractiveServer
-@page "/backlog"
+﻿@page "/backlog"
+
+@rendermode InteractiveServer
 @using Minerva.WebApp.Components.TaskItems.List
 @using Minerva.Application.Features.TaskItems
 
@@ -51,5 +52,22 @@ else
                     DueDate = itemListItem.DueDate
                 };
         }
+    }
+
+    public Task Handle(TaskCompletedNotification notification, CancellationToken cancellationToken)
+    {
+        if (taskItems == null)
+        {
+            return Task.CompletedTask;
+        };
+
+        var taskItem = taskItems.FirstOrDefault(x => x.Id == notification.TaskItemId);
+        if (taskItem != null)
+        {
+            taskItems.Remove(taskItem);
+        }
+
+
+        return Task.CompletedTask;
     }
 }
