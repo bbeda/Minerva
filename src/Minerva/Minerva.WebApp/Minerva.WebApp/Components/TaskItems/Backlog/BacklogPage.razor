@@ -1,12 +1,15 @@
 ﻿@page "/backlog"
+@implements IDisposable
 
 @rendermode InteractiveServer
 @using Minerva.WebApp.Components.TaskItems.List
 @using Minerva.Application.Features.TaskItems
+@using Minerva.Application.Common
 
 @attribute [StreamRendering(true)]
 
 @inject MediatR.IMediator mediator
+@inject INotificationsBroker notificationsBroker
 
 <h3>Backlog</h3>
 
@@ -22,9 +25,13 @@ else
 @code {
     private List<TaskItemListItemModel>? taskItems = null;
 
+    private IDisposable taskCompletedSubscription;
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
+        taskCompletedSubscription= notificationsBroker.Subscribe<TaskCompletedNotification>(EventCallback.Factory.Create<TaskCompletedNotification>(this, OnTaskCompleted));
 
         var data = mediator.CreateStream<TaskItemListItem>(new QueryBacklogRequest());
 
@@ -54,6 +61,20 @@ else
         }
     }
 
+    private void OnTaskCompleted(TaskCompletedNotification notification)
+    {
+        if (taskItems == null)
+        {
+            return;
+        };
+
+        var taskItem = taskItems.FirstOrDefault(x => x.Id == notification.TaskItemId);
+        if (taskItem != null)
+        {
+            taskItems.Remove(taskItem);
+        }
+    }
+
     public Task Handle(TaskCompletedNotification notification, CancellationToken cancellationToken)
     {
         if (taskItems == null)
@@ -69,5 +90,10 @@ else
 
 
         return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        taskCompletedSubscription?.Dispose();
     }
 }

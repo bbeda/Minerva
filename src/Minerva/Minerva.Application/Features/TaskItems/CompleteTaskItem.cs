@@ -7,7 +7,7 @@ public record CompleteTaskItemCommand : IRequest<CommandResult>
     public required Guid TaskItemId { get; init; }
 }
 
-public record TaskCompletedNotification : INotification
+public record TaskItemCompletedNotification : INotification
 {
     public Guid TaskItemId { get; init; }
 }
@@ -28,9 +28,10 @@ internal class CompleteTaskItemCommandHandler(
         }
 
         taskItem.Complete();
-        await mediator.Publish(new TaskCompletedNotification { TaskItemId = taskItem.Id }, cancellationToken);
 
         _ = await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await mediator.Publish(new TaskItemCompletedNotification { TaskItemId = taskItem.Id }, cancellationToken);
 
         return new CommandResult();
     }

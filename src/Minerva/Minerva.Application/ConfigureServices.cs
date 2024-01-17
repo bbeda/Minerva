@@ -26,6 +26,8 @@ public static class ConfigureServices
             return sp.GetRequiredService<DataContext>();
         });
 
+        services.AddSingleton<INotificationsBroker, MediatorNotificationsBroker>();
+
         return services;
     }
 }
