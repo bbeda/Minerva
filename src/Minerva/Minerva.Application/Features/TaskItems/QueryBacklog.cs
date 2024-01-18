@@ -5,6 +5,7 @@ using Minerva.Application.Infrastructure;
 namespace Minerva.Application.Features.TaskItems;
 public class QueryBacklogRequest : IStreamRequest<TaskItemListItem>
 {
+    public required TaskItemStatus[] Statuses { get; set; }
 }
 
 internal class QueryBacklogRequestHandler(DataContext dataContext) : IStreamRequestHandler<QueryBacklogRequest, TaskItemListItem>
@@ -12,7 +13,7 @@ internal class QueryBacklogRequestHandler(DataContext dataContext) : IStreamRequ
     public IAsyncEnumerable<TaskItemListItem> Handle(QueryBacklogRequest request, CancellationToken cancellationToken)
     {
         return dataContext.TaskItems
-            .Where(ti => ti.Status != TaskItemStatus.Complete)
+            .Where(ti => request.Statuses.Contains(ti.Status))
             .Select(ti => new TaskItemListItem
             {
                 Id = ti.Id,
@@ -20,7 +21,7 @@ internal class QueryBacklogRequestHandler(DataContext dataContext) : IStreamRequ
                 Description = ti.Description,
                 DueDate = ti.DueDate,
                 CreatedOn = ti.CreatedAt,
-                IsCompleted = false
+                IsCompleted = ti.Status == TaskItemStatus.Complete
             }).AsAsyncEnumerable();
     }
 }
