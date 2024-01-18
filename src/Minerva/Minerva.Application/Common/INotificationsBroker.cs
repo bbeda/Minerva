@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Components;
 
 namespace Minerva.Application.Common;
-public interface INotificationsBroker : IDisposable,INotificationHandler<INotification>
+public interface INotificationsBroker<T> : IDisposable, INotificationHandler<T> where T : INotification
 {
-    IDisposable Subscribe<T>(EventCallback<T> eventCallback) where T : INotification;
+    IDisposable Subscribe(EventCallback<T> eventCallback);
 }
 
 public interface ISubscription : IDisposable

@@ -11,7 +11,7 @@
 @implements IDisposable
 
 @inject IMediator mediator
-@inject INotificationsBroker notificationsBroker
+@inject INotificationsBroker<TaskItemCompletedNotification> notificationsBroker
 
 <h3>Backlog</h3>
 
@@ -33,7 +33,7 @@ else
     {
         await base.OnInitializedAsync();
 
-        taskCompletedSubscription= notificationsBroker.Subscribe<TaskItemCompletedNotification>(EventCallback.Factory.Create<TaskItemCompletedNotification>(this, OnTaskCompleted));
+        taskCompletedSubscription= notificationsBroker.Subscribe(EventCallback.Factory.Create<TaskItemCompletedNotification>(this, OnTaskCompleted));
 
         var data = mediator.CreateStream<TaskItemListItem>(new QueryBacklogRequest());
 
@@ -75,23 +75,6 @@ else
         {
             taskItems.Remove(taskItem);
         }
-    }
-
-    public Task Handle(TaskItemCompletedNotification notification, CancellationToken cancellationToken)
-    {
-        if (taskItems == null)
-        {
-            return Task.CompletedTask;
-        };
-
-        var taskItem = taskItems.FirstOrDefault(x => x.Id == notification.TaskItemId);
-        if (taskItem != null)
-        {
-            taskItems.Remove(taskItem);
-        }
-
-
-        return Task.CompletedTask;
     }
 
     public void Dispose()
