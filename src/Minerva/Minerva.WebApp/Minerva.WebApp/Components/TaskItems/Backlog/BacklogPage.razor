@@ -49,7 +49,7 @@ else
     private List<TaskItemListItemModel> completedTaskItems = new();
     private bool completedTaskItemsLoading = true;
 
-    private IDisposable taskCompletedSubscription;
+    private IDisposable? taskCompletedSubscription;
 
     protected override async Task OnInitializedAsync()
     {
