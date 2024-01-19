@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Minerva.Application.Common;
@@ -25,6 +26,10 @@ public static class ConfigureServices
         {
             return sp.GetRequiredService<DataContext>();
         });
+
+        services.AddScoped(typeof(INotificationHandler<TaskItemCompletedNotification>), sc => sc.GetRequiredService(typeof(INotificationsBroker<TaskItemCompletedNotification>)));
+
+        services.AddSingleton(typeof(INotificationsBroker<>), typeof(MediatorNotificationsBroker<>));
 
         return services;
     }

@@ -1,42 +1,83 @@
-﻿@rendermode InteractiveServer
-@page "/backlog"
-@using Minerva.WebApp.Components.TaskItems.List
+﻿@using Minerva.WebApp.Components.TaskItems.List
 @using Minerva.Application.Features.TaskItems
+@using Minerva.Application.Common
+@using MediatR
+
+@page "/backlog"
+@rendermode InteractiveServer
 
 @attribute [StreamRendering(true)]
 
-@inject MediatR.IMediator mediator
+@implements IDisposable
+
+@inject IMediator mediator
+@inject INotificationsBroker<TaskItemCompletedNotification> notificationsBroker
 
 <h3>Backlog</h3>
 
-@if (taskItems == null)
+@if (activeTaskItemsLoading)
 {
     <p><em>Loading...</em></p>
 }
+else if (activeTaskItems.Count == 0)
+{
+    <p><em>No task items found.</em></p>
+}
 else
 {
-    <TaskItemsList TaskItems="taskItems" />
+    <TaskItemsList TaskItems="activeTaskItems" />
+}
+
+<h3>Completed</h3>
+
+@if (completedTaskItemsLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (completedTaskItems.Count == 0)
+{
+    <p><em>No task items found.</em></p>
+}
+else
+{
+    <TaskItemsList TaskItems="completedTaskItems" />
 }
 
 @code {
-    private List<TaskItemListItemModel> taskItems = null;
+    private List<TaskItemListItemModel> activeTaskItems = new();
+    private bool activeTaskItemsLoading = true;
+    private List<TaskItemListItemModel> completedTaskItems = new();
+    private bool completedTaskItemsLoading = true;
+
+    private IDisposable taskCompletedSubscription;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        var data = mediator.CreateStream<TaskItemListItem>(new QueryBacklogRequest());
+        taskCompletedSubscription = notificationsBroker.Subscribe(EventCallback.Factory.Create<TaskItemCompletedNotification>(this, OnTaskCompleted));
 
-        var taskItemsEnumerator = data.GetAsyncEnumerator();
-        if (await taskItemsEnumerator.MoveNextAsync())
+        await LoadTaskItemsAsync(TaskItemStatus.Open, activeTaskItems, () => activeTaskItemsLoading = false);
+        await LoadTaskItemsAsync(TaskItemStatus.Complete, completedTaskItems, () => completedTaskItemsLoading = false);
+
+        async Task LoadTaskItemsAsync(TaskItemStatus status, List<TaskItemListItemModel> collector, Action resetIsLoading)
         {
-            taskItems = new();
-            taskItems.Add(MapTaskListItem(taskItemsEnumerator.Current));
+            var items = mediator.CreateStream<TaskItemListItem>(new QueryBacklogRequest() { Statuses = [status] });
 
-            while (await taskItemsEnumerator.MoveNextAsync())
+            var taskItemsEnumerator = items.GetAsyncEnumerator();
+            if (await taskItemsEnumerator.MoveNextAsync())
             {
-                taskItems.Add(MapTaskListItem(taskItemsEnumerator.Current));
+                collector.Clear();
+                resetIsLoading();
+
+                collector.Add(MapTaskListItem(taskItemsEnumerator.Current));
+
+                while (await taskItemsEnumerator.MoveNextAsync())
+                {
+                    collector.Add(MapTaskListItem(taskItemsEnumerator.Current));
+                }
             }
+            resetIsLoading();
         }
 
         static TaskItemListItemModel MapTaskListItem(TaskItemListItem itemListItem)
@@ -51,5 +92,26 @@ else
                     DueDate = itemListItem.DueDate
                 };
         }
+    }
+
+    private void OnTaskCompleted(TaskItemCompletedNotification notification)
+    {
+        if (activeTaskItems == null)
+        {
+            return;
+        };
+
+        var taskItem = activeTaskItems.FirstOrDefault(x => x.Id == notification.TaskItemId);
+        if (taskItem != null)
+        {
+            activeTaskItems.Remove(taskItem);
+            taskItem.IsCompleted = true;
+            completedTaskItems.Add(taskItem);
+        }
+    }
+
+    public void Dispose()
+    {
+        taskCompletedSubscription?.Dispose();
     }
 }

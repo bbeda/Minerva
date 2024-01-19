@@ -2,6 +2,7 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using Minerva.Application;
 using Minerva.WebApp.Client.Pages;
 using Minerva.WebApp.Components;
+using Minerva.WebApp.Components.TaskItems.Backlog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,9 @@ builder.Services.AddRazorComponents()
 builder.Services.AddFluentUIComponents();
 
 builder.Services.AddApplicationServices(builder.Configuration);
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(BacklogPage).Assembly));
+
 
 var app = builder.Build();
 

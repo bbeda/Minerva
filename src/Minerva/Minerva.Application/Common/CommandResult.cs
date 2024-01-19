@@ -1,15 +1,21 @@
 ﻿using FluentValidation.Results;
 
 namespace Minerva.Application.Common;
-public record CommandResult(bool IsSuccess, IReadOnlyCollection<ValidationFailure> Errors)
+public record CommandResult(bool IsSuccess, string? Error, IReadOnlyCollection<ValidationFailure> Errors)
 {
-    public CommandResult() : this(true, [])
+    public CommandResult() : this(true, null, [])
     {
     }
 
-    public CommandResult(IReadOnlyCollection<ValidationFailure> errors) : this(false, errors)
+    public CommandResult(string error, IReadOnlyCollection<ValidationFailure> validationErrors) : this(false, error, validationErrors)
     {
     }
+
+    public CommandResult(string error) : this(false, error, [])
+    {
+    }
+
+    public static readonly CommandResult Success = new();
 }
 
 public record CommandResult<TResult> : CommandResult
@@ -18,7 +24,7 @@ public record CommandResult<TResult> : CommandResult
 
     public CommandResult(TResult result) : base() => Result = result;
 
-    public CommandResult(IReadOnlyCollection<ValidationFailure> errors) : base(errors)
+    public CommandResult(string error, IReadOnlyCollection<ValidationFailure> errors) : base(error, errors)
     {
     }
 }

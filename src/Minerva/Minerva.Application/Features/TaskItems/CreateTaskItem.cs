@@ -11,7 +11,7 @@ public class CreateTaskItemCommand : IRequest<CommandResult<TaskItem>>
 
 internal class CreateTaskItemCommandHandler(
     ITaskItemRepository taskItemRepository,
-    IUnitOfWork unitOfWork) : IRequestHandler<CreateTaskItemCommand, CommandResult<TaskItem>>
+    IUnitOfWork unitOfWork, IMediator mediator) : IRequestHandler<CreateTaskItemCommand, CommandResult<TaskItem>>
 {
     public async Task<CommandResult<TaskItem>> Handle(CreateTaskItemCommand request, CancellationToken cancellationToken)
     {
