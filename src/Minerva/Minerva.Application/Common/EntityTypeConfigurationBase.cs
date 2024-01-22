@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Minerva.Application.Common;
 internal class EntityTypeConfigurationBase<T> : IEntityTypeConfiguration<T> where T : Entity
 {
-    public void Configure(EntityTypeBuilder<T> builder)
+    public virtual void Configure(EntityTypeBuilder<T> builder)
     {
         _ = builder.HasKey(entity => entity.Id);
 

@@ -14,6 +14,9 @@ public class TaskItem : Entity
 
     public DateTimeOffset? CompletedOn { get; private set; }
 
+    public ICollection<TaskItemPlanEntry> PlanEntries { get; private set; } = [];
+
+
     [SetsRequiredMembers]
     public TaskItem(
         string title,
@@ -32,6 +35,19 @@ public class TaskItem : Entity
         Status = TaskItemStatus.Complete;
         CompletedOn = DateTime.UtcNow;
     }
+
+    public void Plan(TaskItemPlanEntryType planType, DateOnly date)
+    {
+        var existingPlanEntry = PlanEntries.FirstOrDefault(x => x.Type == planType);
+        if (existingPlanEntry != null)
+        {
+            existingPlanEntry.UpdateDates(date);
+            return;
+        }
+
+        var entry = new TaskItemPlanEntry(Guid.NewGuid(), planType, date);
+        PlanEntries.Add(entry);
+    }
 }
 
 public enum TaskItemStatus
@@ -39,3 +55,77 @@ public enum TaskItemStatus
     Open,
     Complete
 }
+
+public class TaskItemPlanEntry : Entity
+{
+    [SetsRequiredMembers]
+    public TaskItemPlanEntry(Guid id) : base(id)
+    {
+
+    }
+
+    [SetsRequiredMembers]
+    public TaskItemPlanEntry(Guid id, TaskItemPlanEntryType planEntryType, DateOnly startDate) : base(id)
+    {
+        Type = planEntryType;
+
+        SetDates(planEntryType, startDate);
+    }
+
+    public void UpdateDates(DateOnly date)
+    {
+        SetDates(Type, date);
+    }
+
+    private void SetDates(TaskItemPlanEntryType planEntryType, DateOnly startDate)
+    {
+        switch (planEntryType)
+        {
+            case TaskItemPlanEntryType.Daily:
+                StartDate = startDate;
+                EndDate = startDate;
+                break;
+            case TaskItemPlanEntryType.Weekly:
+                var weekDay = startDate.DayOfWeek;
+                var daysToSubtract = weekDay == DayOfWeek.Sunday ? 6 : (int)weekDay;
+                StartDate = startDate.AddDays(-daysToSubtract);
+                EndDate = StartDate.AddDays(6);
+                break;
+            case TaskItemPlanEntryType.Monthly:
+                StartDate = new DateOnly(startDate.Year, startDate.Month, 1);
+                EndDate = StartDate.AddMonths(1).AddDays(-1);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(planEntryType), planEntryType, null);
+        }
+    }
+
+    [SetsRequiredMembers]
+    public TaskItemPlanEntry(Guid id, TaskItemPlanEntryType planEntryType, DateOnly startDate, TaskItemPlanEntryStatus status) : this(id, planEntryType, startDate)
+    {
+        Status = status;
+    }
+
+    public TaskItemPlanEntryType Type { get; private set; }
+
+    public DateOnly StartDate { get; private set; }
+
+    public DateOnly EndDate { get; private set; }
+
+    public TaskItemPlanEntryStatus Status { get; private set; } = TaskItemPlanEntryStatus.Planned;
+}
+
+public enum TaskItemPlanEntryType
+{
+    Daily,
+    Weekly,
+    Monthly
+}
+
+public enum TaskItemPlanEntryStatus
+{
+    Planned,
+    Completed,
+    Failed
+}
+
