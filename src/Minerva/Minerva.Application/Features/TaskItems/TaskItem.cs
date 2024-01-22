@@ -72,10 +72,7 @@ public class TaskItemPlanEntry : Entity
         SetDates(planEntryType, startDate);
     }
 
-    public void UpdateDates(DateOnly date)
-    {
-        SetDates(Type, date);
-    }
+    public void UpdateDates(DateOnly date) => SetDates(Type, date);
 
     private void SetDates(TaskItemPlanEntryType planEntryType, DateOnly startDate)
     {
@@ -101,10 +98,12 @@ public class TaskItemPlanEntry : Entity
     }
 
     [SetsRequiredMembers]
-    public TaskItemPlanEntry(Guid id, TaskItemPlanEntryType planEntryType, DateOnly startDate, TaskItemPlanEntryStatus status) : this(id, planEntryType, startDate)
-    {
-        Status = status;
-    }
+    public TaskItemPlanEntry(
+        Guid id,
+        TaskItemPlanEntryType planEntryType,
+        DateOnly startDate,
+        TaskItemPlanEntryStatus status)
+        : this(id, planEntryType, startDate) => Status = status;
 
     public TaskItemPlanEntryType Type { get; private set; }
 
