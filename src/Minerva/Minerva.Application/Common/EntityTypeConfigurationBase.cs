@@ -6,6 +6,10 @@ internal class EntityTypeConfigurationBase<T> : IEntityTypeConfiguration<T> wher
 {
     public virtual void Configure(EntityTypeBuilder<T> builder)
     {
+        builder.Property(entity => entity.Id)
+            .ValueGeneratedNever()
+            .IsRequired();
+
         _ = builder.HasKey(entity => entity.Id);
 
         _ = builder.Property(entity => entity.CreatedAt)

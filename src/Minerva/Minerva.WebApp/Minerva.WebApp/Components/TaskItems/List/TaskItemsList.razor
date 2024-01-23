@@ -20,7 +20,7 @@
         {
             <FluentCard>
                 <FluentGrid>
-                    <FluentGridItem>
+                    <FluentGridItem sm="1">
                         @if (item.IsCompleted)
                         {
                             <FluentIcon Value="@(new Icons.Filled.Size20.CheckmarkCircle())" @onclick="async ()=>await UncompleteTaskItemAsync(item)" Color="Color.Success"></FluentIcon>
@@ -31,8 +31,13 @@
                         }
                     </FluentGridItem>
                     <FluentGridItem Style="@CompletedStyle(item)">
-                        <FluentLabel Typo="Typography.Subject">@item.Title</FluentLabel>
-                        <FluentLabel Typo="Typography.Body">@item.Description</FluentLabel>
+                        <FluentStack Orientation="Orientation.Vertical">
+                            <FluentLabel Typo="Typography.Subject">@item.Title</FluentLabel>
+                            <FluentLabel Typo="Typography.Body">@item.Description</FluentLabel>
+                            <FluentStack Orientation="Orientation.Horizontal">
+                                <FluentBadge Appearance="Appearance.Neutral" @onclick="async ()=>await PlanClicked(item)">No Plan</FluentBadge>
+                            </FluentStack>
+                        </FluentStack>
                     </FluentGridItem>
                 </FluentGrid>
             </FluentCard>
@@ -71,5 +76,15 @@
             item.IsCompleted = true;
             OnItemChanged?.Invoke(item);
         }
+    }
+
+    private async Task PlanClicked(TaskItemListItemModel item)
+    {
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now),
+                PlanType = TaskItemPlanEntryType.Monthly
+            });
     }
 }

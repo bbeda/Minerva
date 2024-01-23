@@ -22,7 +22,7 @@ public class TaskItem : Entity
         string title,
         string? description,
         DateOnly? dueDate,
-        TaskItemStatus status = TaskItemStatus.Open)
+        TaskItemStatus status = TaskItemStatus.Open) : base()
     {
         Title = title;
         Description = description;
@@ -45,7 +45,7 @@ public class TaskItem : Entity
             return;
         }
 
-        var entry = new TaskItemPlanEntry(Guid.NewGuid(), planType, date);
+        var entry = new TaskItemPlanEntry(planType, date);
         PlanEntries.Add(entry);
     }
 }
@@ -59,16 +59,12 @@ public enum TaskItemStatus
 public class TaskItemPlanEntry : Entity
 {
     [SetsRequiredMembers]
-    public TaskItemPlanEntry(Guid id) : base(id)
-    {
-
-    }
+    public TaskItemPlanEntry(Guid taskItemId, Guid id) : base(id) => TaskItemId = taskItemId;
 
     [SetsRequiredMembers]
-    public TaskItemPlanEntry(Guid id, TaskItemPlanEntryType planEntryType, DateOnly startDate) : base(id)
+    public TaskItemPlanEntry(TaskItemPlanEntryType planEntryType, DateOnly startDate)
     {
         Type = planEntryType;
-
         SetDates(planEntryType, startDate);
     }
 
@@ -84,7 +80,7 @@ public class TaskItemPlanEntry : Entity
                 break;
             case TaskItemPlanEntryType.Weekly:
                 var weekDay = startDate.DayOfWeek;
-                var daysToSubtract = weekDay == DayOfWeek.Sunday ? 6 : (int)weekDay;
+                var daysToSubtract = weekDay == DayOfWeek.Sunday ? 6 : (int)weekDay-1;
                 StartDate = startDate.AddDays(-daysToSubtract);
                 EndDate = StartDate.AddDays(6);
                 break;
@@ -99,11 +95,12 @@ public class TaskItemPlanEntry : Entity
 
     [SetsRequiredMembers]
     public TaskItemPlanEntry(
-        Guid id,
         TaskItemPlanEntryType planEntryType,
         DateOnly startDate,
         TaskItemPlanEntryStatus status)
-        : this(id, planEntryType, startDate) => Status = status;
+        : this(planEntryType, startDate) => Status = status;
+
+    public Guid TaskItemId { get; private set; }
 
     public TaskItemPlanEntryType Type { get; private set; }
 

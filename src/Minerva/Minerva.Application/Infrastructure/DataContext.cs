@@ -7,6 +7,8 @@ internal class DataContext(DbContextOptions<DataContext> options) : DbContext(op
 {
     public DbSet<TaskItem> TaskItems { get; set; }
 
+    public DbSet<TaskItemPlanEntry> TaskItemPlanEntries { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         _ = modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);

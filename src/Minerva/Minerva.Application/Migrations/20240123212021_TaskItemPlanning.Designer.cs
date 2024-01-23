@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Minerva.Application.Infrastructure;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Minerva.Application.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240123212021_TaskItemPlanning")]
+    partial class TaskItemPlanning
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,6 +28,7 @@ namespace Minerva.Application.Migrations
             modelBuilder.Entity("Minerva.Application.Features.TaskItems.TaskItem", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("CompletedOn")
@@ -61,6 +65,7 @@ namespace Minerva.Application.Migrations
             modelBuilder.Entity("Minerva.Application.Features.TaskItems.TaskItemPlanEntry", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -94,7 +99,7 @@ namespace Minerva.Application.Migrations
 
                     b.HasIndex("TaskItemId", "Type", "Status")
                         .IsUnique()
-                        .HasFilter("(\"Status\" == 0)");
+                        .HasFilter("Status == 'Planned'");
 
                     b.ToTable("TaskItemPlanEntries", (string)null);
                 });
