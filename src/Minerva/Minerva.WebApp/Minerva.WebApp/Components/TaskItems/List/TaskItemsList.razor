@@ -42,6 +42,11 @@
                                         <FluentBadge Appearance="Appearance.Accent">@plan.StartDate.ToString("dd/MM")</FluentBadge>
                                     }
                                 }
+
+                                @if (item.CanPlan)
+                                {
+                                    <FluentIcon Value="@(new Icons.Filled.Size20.CalendarAgenda())" Color="Color.Accent" @onclick="()=>OpenPlanMenu(item)" />
+                                }
                             </FluentStack>
                         </FluentStack>
                     </FluentGridItem>
@@ -53,6 +58,8 @@
 </FluentStack>
 
 @code {
+    private TaskItemListItemModel? planningItem = null;
+
     [Parameter]
     public ICollection<TaskItemListItemModel>? TaskItems { get; set; }
 
@@ -92,5 +99,10 @@
                 Date = DateOnly.FromDateTime(DateTime.Now),
                 PlanType = TaskItemPlanningPeriond.Month
             });
+    }
+
+    private void OpenPlanMenu(TaskItemListItemModel item)
+    {
+        planningItem = item;
     }
 }

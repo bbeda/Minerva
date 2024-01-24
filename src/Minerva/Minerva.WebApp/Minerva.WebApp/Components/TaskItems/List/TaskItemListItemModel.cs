@@ -17,6 +17,8 @@ public class TaskItemListItemModel
     public bool IsCompleted { get; set; }
 
     public IReadOnlyCollection<PlanningOption> Planning { get; set; } = [];
+
+    public bool CanPlan => Planning is null || Planning.Count < 3;
 }
 
 public record PlanningOption(TaskItemPlanningPeriond Period, DateOnly StartDate);
