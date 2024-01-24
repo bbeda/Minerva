@@ -35,7 +35,13 @@
                             <FluentLabel Typo="Typography.Subject">@item.Title</FluentLabel>
                             <FluentLabel Typo="Typography.Body">@item.Description</FluentLabel>
                             <FluentStack Orientation="Orientation.Horizontal">
-                                <FluentBadge Appearance="Appearance.Neutral" @onclick="async ()=>await PlanClicked(item)">No Plan</FluentBadge>
+                                @if (item.Planning != null)
+                                {
+                                    @foreach (var plan in item.Planning)
+                                    {
+                                        <FluentBadge Appearance="Appearance.Accent">@plan.StartDate.ToString("dd/MM")</FluentBadge>
+                                    }
+                                }
                             </FluentStack>
                         </FluentStack>
                     </FluentGridItem>
@@ -84,7 +90,7 @@
             {
                 TaskItemId = item.Id,
                 Date = DateOnly.FromDateTime(DateTime.Now),
-                PlanType = TaskItemPlanEntryType.Monthly
+                PlanType = TaskItemPlanningPeriond.Month
             });
     }
 }

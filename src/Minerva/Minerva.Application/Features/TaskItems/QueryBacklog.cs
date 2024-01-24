@@ -14,6 +14,7 @@ internal class QueryBacklogRequestHandler(DataContext dataContext) : IStreamRequ
     {
         return dataContext.TaskItems
             .Where(ti => request.Statuses.Contains(ti.Status))
+            .Include(ti => ti.PlanEntries.Where(pe => pe.Status == TaskItemPlanEntryStatus.Planned))
             .Select(ti => new TaskItemListItem
             {
                 Id = ti.Id,
@@ -21,7 +22,11 @@ internal class QueryBacklogRequestHandler(DataContext dataContext) : IStreamRequ
                 Description = ti.Description,
                 DueDate = ti.DueDate,
                 CreatedOn = ti.CreatedAt,
-                IsCompleted = ti.Status == TaskItemStatus.Complete
+                IsCompleted = ti.Status == TaskItemStatus.Complete,
+                Planning = new TaskItemPlanning(
+                    TaskItemPlanningOption.From(ti.DayPlan),
+                    TaskItemPlanningOption.From(ti.WeekPlan),
+                    TaskItemPlanningOption.From(ti.MonthPlan))
             }).AsAsyncEnumerable();
     }
 }

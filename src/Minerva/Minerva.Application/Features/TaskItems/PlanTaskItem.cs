@@ -6,7 +6,7 @@ namespace Minerva.Application.Features.TaskItems;
 public class PlanTaskItemCommand : IRequest<CommandResult>
 {
     public Guid TaskItemId { get; init; }
-    public TaskItemPlanEntryType PlanType { get; init; }
+    public TaskItemPlanningPeriond PlanType { get; init; }
     public DateOnly Date { get; init; }
 }
 

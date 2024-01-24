@@ -16,6 +16,12 @@ public class TaskItem : Entity
 
     public ICollection<TaskItemPlanEntry> PlanEntries { get; private set; } = [];
 
+    public TaskItemPlanEntry? DayPlan => PlanEntries?.FirstOrDefault(x => x.Type == TaskItemPlanningPeriond.Day);
+
+    public TaskItemPlanEntry? WeekPlan => PlanEntries?.FirstOrDefault(x => x.Type == TaskItemPlanningPeriond.Week);
+
+    public TaskItemPlanEntry? MonthPlan => PlanEntries?.FirstOrDefault(x => x.Type == TaskItemPlanningPeriond.Month);
+
 
     [SetsRequiredMembers]
     public TaskItem(
@@ -36,7 +42,7 @@ public class TaskItem : Entity
         CompletedOn = DateTime.UtcNow;
     }
 
-    public void Plan(TaskItemPlanEntryType planType, DateOnly date)
+    public void Plan(TaskItemPlanningPeriond planType, DateOnly date)
     {
         var existingPlanEntry = PlanEntries.FirstOrDefault(x => x.Type == planType);
         if (existingPlanEntry != null)
@@ -62,7 +68,7 @@ public class TaskItemPlanEntry : Entity
     public TaskItemPlanEntry(Guid taskItemId, Guid id) : base(id) => TaskItemId = taskItemId;
 
     [SetsRequiredMembers]
-    public TaskItemPlanEntry(TaskItemPlanEntryType planEntryType, DateOnly startDate)
+    public TaskItemPlanEntry(TaskItemPlanningPeriond planEntryType, DateOnly startDate)
     {
         Type = planEntryType;
         SetDates(planEntryType, startDate);
@@ -70,21 +76,21 @@ public class TaskItemPlanEntry : Entity
 
     public void UpdateDates(DateOnly date) => SetDates(Type, date);
 
-    private void SetDates(TaskItemPlanEntryType planEntryType, DateOnly startDate)
+    private void SetDates(TaskItemPlanningPeriond planEntryType, DateOnly startDate)
     {
         switch (planEntryType)
         {
-            case TaskItemPlanEntryType.Daily:
+            case TaskItemPlanningPeriond.Day:
                 StartDate = startDate;
                 EndDate = startDate;
                 break;
-            case TaskItemPlanEntryType.Weekly:
+            case TaskItemPlanningPeriond.Week:
                 var weekDay = startDate.DayOfWeek;
-                var daysToSubtract = weekDay == DayOfWeek.Sunday ? 6 : (int)weekDay-1;
+                var daysToSubtract = weekDay == DayOfWeek.Sunday ? 6 : (int)weekDay - 1;
                 StartDate = startDate.AddDays(-daysToSubtract);
                 EndDate = StartDate.AddDays(6);
                 break;
-            case TaskItemPlanEntryType.Monthly:
+            case TaskItemPlanningPeriond.Month:
                 StartDate = new DateOnly(startDate.Year, startDate.Month, 1);
                 EndDate = StartDate.AddMonths(1).AddDays(-1);
                 break;
@@ -95,14 +101,14 @@ public class TaskItemPlanEntry : Entity
 
     [SetsRequiredMembers]
     public TaskItemPlanEntry(
-        TaskItemPlanEntryType planEntryType,
+        TaskItemPlanningPeriond planEntryType,
         DateOnly startDate,
         TaskItemPlanEntryStatus status)
         : this(planEntryType, startDate) => Status = status;
 
     public Guid TaskItemId { get; private set; }
 
-    public TaskItemPlanEntryType Type { get; private set; }
+    public TaskItemPlanningPeriond Type { get; private set; }
 
     public DateOnly StartDate { get; private set; }
 
@@ -111,11 +117,12 @@ public class TaskItemPlanEntry : Entity
     public TaskItemPlanEntryStatus Status { get; private set; } = TaskItemPlanEntryStatus.Planned;
 }
 
-public enum TaskItemPlanEntryType
+[Flags]
+public enum TaskItemPlanningPeriond
 {
-    Daily,
-    Weekly,
-    Monthly
+    Day = 1,
+    Week = 2,
+    Month = 4
 }
 
 public enum TaskItemPlanEntryStatus
