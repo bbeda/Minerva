@@ -3,7 +3,7 @@
 
 @inject IMediator mediator
 
-<FluentCard Id="@ItemMenuId" style="border-style:solid;border-color:gray;border-width:1px;width:100%">
+<FluentCard style="border-style:solid;border-color:gray;border-width:1px;width:100%">
     <FluentGrid Style="width:100%">
         <FluentGridItem sm="1">
             @if (Item.IsCompleted)
@@ -32,19 +32,27 @@
         </FluentGridItem>
         <FluentGridItem sm="1">
             <FluentIcon id="@ItemMenuId" Value="@(new Icons.Regular.Size20.Calendar())" @onclick="()=>OpenPlanMenu(Item)"></FluentIcon>
-            @if (Item.CanPlan)
-            {
-                <FluentMenu Anchor="@ItemMenuId" Style="z-index:1000" @bind-Open="planningMenuOpen">
-                    <FluentMenuItem>
-                        <FluentLabel Typo="Typography.Body" @onclick="()=>PlanToday()">Today</FluentLabel>
-                        <FluentLabel Typo="Typography.Body" @onclick="()=>PlanTomorrow()">Tomorrow</FluentLabel>
-                        <FluentLabel Typo="Typography.Body" @onclick="()=>PlanThisWeek()">This Week</FluentLabel>
-                    </FluentMenuItem>
-                </FluentMenu>
-            }  
         </FluentGridItem>
     </FluentGrid>
 </FluentCard>
+@if (Item.CanPlan)
+{
+    <FluentMenu Anchor="@ItemMenuId" @bind-Open="planningMenuOpen">
+        <FluentMenuItem Label="Planning">
+            <MenuItems>
+                <FluentMenuItem>
+                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanToday()">Today</FluentLabel>
+                </FluentMenuItem>
+                <FluentMenuItem>
+                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanTomorrow()">Tomorrow</FluentLabel>
+                </FluentMenuItem>
+                <FluentMenuItem>
+                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanThisWeek()">This Week</FluentLabel>
+                </FluentMenuItem>
+            </MenuItems>
+        </FluentMenuItem>
+    </FluentMenu>
+}
 
 @code {
     private string ItemMenuId { get; init; } = $"item-menu-{Guid.NewGuid()}";
@@ -94,7 +102,7 @@
         planningMenuOpen = true;
     }
 
-    private async void PlanToday()
+    private async Task PlanToday()
     {
         await mediator.Send(new PlanTaskItemCommand()
             {
@@ -104,7 +112,7 @@
             });
     }
 
-    private async void PlanTomorrow()
+    private async Task PlanTomorrow()
     {
         await mediator.Send(new PlanTaskItemCommand()
             {
@@ -114,7 +122,7 @@
             });
     }
 
-    private async void PlanThisWeek()
+    private async Task PlanThisWeek()
     {
         await mediator.Send(new PlanTaskItemCommand()
             {
