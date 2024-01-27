@@ -1,0 +1,126 @@
+﻿@using MediatR
+@using Minerva.Application.Features.TaskItems
+
+@inject IMediator mediator
+
+<FluentCard Id="@ItemMenuId" style="border-style:solid;border-color:gray;border-width:1px;width:100%">
+    <FluentGrid Style="width:100%">
+        <FluentGridItem sm="1">
+            @if (Item.IsCompleted)
+            {
+                <FluentIcon Value="@(new Icons.Filled.Size20.CheckmarkCircle())" @onclick="async ()=>await UncompleteTaskItemAsync(Item)" Color="Color.Success"></FluentIcon>
+            }
+            else
+            {
+                <FluentIcon Value="@(new Icons.Regular.Size20.Circle())" @onclick="async ()=>await CompleteTaskItemAsync(Item)"></FluentIcon>
+            }
+        </FluentGridItem>
+        <FluentGridItem Style="@CompletedStyle(Item)" sm="10">
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentLabel Typo="Typography.Subject">@Item.Title</FluentLabel>
+                <FluentLabel Typo="Typography.Body">@Item.Description</FluentLabel>
+                <FluentStack Orientation="Orientation.Horizontal">
+                    @if (Item.Planning != null)
+                    {
+                        @foreach (var plan in Item.Planning)
+                        {
+                            <FluentBadge Appearance="Appearance.Accent">@plan.StartDate.ToString("dd/MM")</FluentBadge>
+                        }
+                    }
+                </FluentStack>
+            </FluentStack>
+        </FluentGridItem>
+        <FluentGridItem sm="1">
+            <FluentIcon id="@ItemMenuId" Value="@(new Icons.Regular.Size20.Calendar())" @onclick="()=>OpenPlanMenu(Item)"></FluentIcon>
+            @if (Item.CanPlan)
+            {
+                <FluentMenu Anchor="@ItemMenuId" Style="z-index:1000" @bind-Open="planningMenuOpen">
+                    <FluentMenuItem>
+                        <FluentLabel Typo="Typography.Body" @onclick="()=>PlanToday()">Today</FluentLabel>
+                        <FluentLabel Typo="Typography.Body" @onclick="()=>PlanTomorrow()">Tomorrow</FluentLabel>
+                        <FluentLabel Typo="Typography.Body" @onclick="()=>PlanThisWeek()">This Week</FluentLabel>
+                    </FluentMenuItem>
+                </FluentMenu>
+            }  
+        </FluentGridItem>
+    </FluentGrid>
+</FluentCard>
+
+@code {
+    private string ItemMenuId { get; init; } = $"item-menu-{Guid.NewGuid()}";
+
+    private bool planningMenuOpen = false;
+
+    [Parameter]
+    public TaskItemListItemModel Item { get; set; }
+
+    [Parameter]
+    public Action<TaskItemListItemModel>? OnItemChanged { get; set; }
+
+    private string CompletedStyle(TaskItemListItemModel item)
+    {
+        return item.IsCompleted ? "text-decoration: line-through" : "";
+    }
+
+    private async Task UncompleteTaskItemAsync(TaskItemListItemModel item)
+    {
+        item.IsCompleted = false;
+        OnItemChanged?.Invoke(item);
+        await Task.CompletedTask;
+    }
+
+    private async Task CompleteTaskItemAsync(TaskItemListItemModel item)
+    {
+        var result = await mediator.Send(new CompleteTaskItemCommand() { TaskItemId = item.Id });
+        if (result.IsSuccess)
+        {
+            item.IsCompleted = true;
+            OnItemChanged?.Invoke(item);
+        }
+    }
+
+    private async Task PlanClicked(TaskItemListItemModel item)
+    {
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now),
+                PlanType = TaskItemPlanningPeriond.Month
+            });
+    }
+
+    private void OpenPlanMenu(TaskItemListItemModel item)
+    {
+        planningMenuOpen = true;
+    }
+
+    private async void PlanToday()
+    {
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = Item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now),
+                PlanType = TaskItemPlanningPeriond.Day
+            });
+    }
+
+    private async void PlanTomorrow()
+    {
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = Item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now).AddDays(1),
+                PlanType = TaskItemPlanningPeriond.Day
+            });
+    }
+
+    private async void PlanThisWeek()
+    {
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = Item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now),
+                PlanType = TaskItemPlanningPeriond.Week
+            });
+    }
+}

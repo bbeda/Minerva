@@ -16,52 +16,18 @@
     }
     else
     {
-        @foreach (var item in TaskItems)
+        @for (var ix = 0; ix < TaskItems.Count; ix++)
         {
-            <FluentCard>
-                <FluentGrid>
-                    <FluentGridItem sm="1">
-                        @if (item.IsCompleted)
-                        {
-                            <FluentIcon Value="@(new Icons.Filled.Size20.CheckmarkCircle())" @onclick="async ()=>await UncompleteTaskItemAsync(item)" Color="Color.Success"></FluentIcon>
-                        }
-                        else
-                        {
-                            <FluentIcon Value="@(new Icons.Regular.Size20.Circle())" @onclick="async ()=>await CompleteTaskItemAsync(item)"></FluentIcon>
-                        }
-                    </FluentGridItem>
-                    <FluentGridItem Style="@CompletedStyle(item)">
-                        <FluentStack Orientation="Orientation.Vertical">
-                            <FluentLabel Typo="Typography.Subject">@item.Title</FluentLabel>
-                            <FluentLabel Typo="Typography.Body">@item.Description</FluentLabel>
-                            <FluentStack Orientation="Orientation.Horizontal">
-                                @if (item.Planning != null)
-                                {
-                                    @foreach (var plan in item.Planning)
-                                    {
-                                        <FluentBadge Appearance="Appearance.Accent">@plan.StartDate.ToString("dd/MM")</FluentBadge>
-                                    }
-                                }
-
-                                @if (item.CanPlan)
-                                {
-                                    <FluentIcon Value="@(new Icons.Filled.Size20.CalendarAgenda())" Color="Color.Accent" @onclick="()=>OpenPlanMenu(item)" />
-                                }
-                            </FluentStack>
-                        </FluentStack>
-                    </FluentGridItem>
-                </FluentGrid>
-            </FluentCard>
+            var item = TaskItems[ix];
+            <TaskItemListEntry Item="item" OnItemChanged="OnItemChanged"></TaskItemListEntry>
         }
     }
 
 </FluentStack>
 
 @code {
-    private TaskItemListItemModel? planningItem = null;
-
     [Parameter]
-    public ICollection<TaskItemListItemModel>? TaskItems { get; set; }
+    public IList<TaskItemListItemModel>? TaskItems { get; set; }
 
     [Parameter]
     public Action<TaskItemListItemModel>? OnItemChanged { get; set; }
@@ -69,40 +35,5 @@
     [Parameter]
     public string? Title { get; set; }
 
-    private string CompletedStyle(TaskItemListItemModel item)
-    {
-        return item.IsCompleted ? "text-decoration: line-through" : "";
-    }
 
-    private async Task UncompleteTaskItemAsync(TaskItemListItemModel item)
-    {
-        item.IsCompleted = false;
-        OnItemChanged?.Invoke(item);
-        await Task.CompletedTask;
-    }
-
-    private async Task CompleteTaskItemAsync(TaskItemListItemModel item)
-    {
-        var result = await mediator.Send(new CompleteTaskItemCommand() { TaskItemId = item.Id });
-        if (result.IsSuccess)
-        {
-            item.IsCompleted = true;
-            OnItemChanged?.Invoke(item);
-        }
-    }
-
-    private async Task PlanClicked(TaskItemListItemModel item)
-    {
-        await mediator.Send(new PlanTaskItemCommand()
-            {
-                TaskItemId = item.Id,
-                Date = DateOnly.FromDateTime(DateTime.Now),
-                PlanType = TaskItemPlanningPeriond.Month
-            });
-    }
-
-    private void OpenPlanMenu(TaskItemListItemModel item)
-    {
-        planningItem = item;
-    }
 }

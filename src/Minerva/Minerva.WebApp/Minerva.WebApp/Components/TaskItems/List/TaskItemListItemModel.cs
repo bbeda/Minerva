@@ -1,4 +1,5 @@
-﻿using Minerva.Application.Features.TaskItems;
+﻿using Microsoft.FluentUI.AspNetCore.Components;
+using Minerva.Application.Features.TaskItems;
 
 namespace Minerva.WebApp.Components.TaskItems.List;
 
@@ -18,7 +19,7 @@ public class TaskItemListItemModel
 
     public IReadOnlyCollection<PlanningOption> Planning { get; set; } = [];
 
-    public bool CanPlan => Planning is null || Planning.Count < 3;
+    public bool CanPlan => !IsCompleted;
 }
 
 public record PlanningOption(TaskItemPlanningPeriond Period, DateOnly StartDate);
