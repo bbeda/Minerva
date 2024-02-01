@@ -1,0 +1,125 @@
+﻿﻿@using MediatR
+@using Minerva.Application.Features.TaskItems
+
+@inject IMediator mediator
+
+<FluentCard style="border-style:solid;border-color:gray;border-width:1px;width:100%">
+    <FluentGrid Style="width:100%">
+        <FluentGridItem sm="1">
+            @if (Item.IsCompleted)
+            {
+                <FluentIcon Value="@(new Icons.Filled.Size20.CheckmarkCircle())" @onclick="async ()=>await UncompleteTaskItemAsync()" Color="Color.Success"></FluentIcon>
+            }
+            else
+            {
+                <FluentIcon Value="@(new Icons.Regular.Size20.Circle())" @onclick="async ()=>await CompleteTaskItemAsync()"></FluentIcon>
+            }
+        </FluentGridItem>
+        <FluentGridItem Style="@CompletedStyle(Item)" sm="10">
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentLabel Typo="Typography.Subject">@Item.Title</FluentLabel>
+                <FluentLabel Typo="Typography.Body">@Item.Description</FluentLabel>
+                <FluentStack Orientation="Orientation.Horizontal">
+                </FluentStack>
+            </FluentStack>
+        </FluentGridItem>
+        <FluentGridItem sm="1">
+            <FluentIcon id="@ItemMenuId" Value="@(new Icons.Regular.Size20.Calendar())" @onclick="()=>OpenPlanMenu()"></FluentIcon>
+        </FluentGridItem>
+    </FluentGrid>
+</FluentCard>
+@if (Item.CanPlan)
+{
+    <FluentMenu Anchor="@ItemMenuId" @bind-Open="planningMenuOpen">
+        <FluentMenuItem Label="Planning">
+            <MenuItems>
+                <FluentMenuItem>
+                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanToday()">Today</FluentLabel>
+                </FluentMenuItem>
+                <FluentMenuItem>
+                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanTomorrow()">Tomorrow</FluentLabel>
+                </FluentMenuItem>
+                <FluentMenuItem>
+                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanThisWeek()">This Week</FluentLabel>
+                </FluentMenuItem>
+            </MenuItems>
+        </FluentMenuItem>
+    </FluentMenu>
+}
+
+@code {
+    [Parameter]
+    public TaskItemListItemModel Item { get; set; }
+
+    [Parameter]
+    public Action<TaskItemListItemModel>? OnItemChanged { get; set; }
+
+    private string ItemMenuId { get; init; } = $"item-menu-{Guid.NewGuid()}";
+
+    private bool planningMenuOpen = false;
+
+    private string CompletedStyle(TaskItemListItemModel item)
+    {
+        return item.IsCompleted ? "text-decoration: line-through" : "";
+    }
+
+    private async Task UncompleteTaskItemAsync()
+    {
+        Item.IsCompleted = false;
+        OnItemChanged?.Invoke(Item);
+        await Task.CompletedTask;
+    }
+
+    private async Task CompleteTaskItemAsync()
+    {
+        var result = await mediator.Send(new CompleteTaskItemCommand() { TaskItemId = Item.Id });
+        if (result.IsSuccess)
+        {
+            Item.IsCompleted = true;
+            OnItemChanged?.Invoke(Item);
+        }
+    }
+
+    private async Task PlanToday()
+    {
+        // await mediator.Send(new PlanTaskItemCommand()
+        //     {
+        //         TaskItemId = Item.Id,
+        //         Date = DateOnly.FromDateTime(DateTime.Now),
+        //         PlanType = TaskItemPlanningPeriond.Day
+        //     });
+
+        throw new NotImplementedException();
+
+    }
+
+    private async Task PlanTomorrow()
+    {
+        // await mediator.Send(new PlanTaskItemCommand()
+        //     {
+        //         TaskItemId = Item.Id,
+        //         Date = DateOnly.FromDateTime(DateTime.Now).AddDays(1),
+        //         PlanType = TaskItemPlanningPeriond.Day
+        //     });
+
+        throw new NotImplementedException();
+
+    }
+
+    private async Task PlanThisWeek()
+    {
+        // await mediator.Send(new PlanTaskItemCommand()
+        //     {
+        //         TaskItemId = Item.Id,
+        //         Date = DateOnly.FromDateTime(DateTime.Now),
+        //         PlanType = TaskItemPlanningPeriond.Week
+        //     });
+
+        throw new NotImplementedException();
+    }
+
+    private void OpenPlanMenu()
+    {
+        planningMenuOpen = true;
+    }
+}

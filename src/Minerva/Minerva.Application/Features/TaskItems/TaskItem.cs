@@ -14,6 +14,8 @@ public class TaskItem : Entity
 
     public DateTimeOffset? CompletedOn { get; private set; }
 
+    public TaskItemPlanning Planning { get; set; } = TaskItemPlanning.None;
+
     [SetsRequiredMembers]
     public TaskItem(
         string title,

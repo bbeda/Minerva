@@ -1,4 +1,6 @@
-﻿namespace Minerva.WebApp.Components.TaskItems.List;
+﻿using Minerva.Application.Features.TaskItems;
+
+namespace Minerva.WebApp.Components.TaskItems.List;
 
 public class TaskItemListItemModel
 {
@@ -12,5 +14,9 @@ public class TaskItemListItemModel
 
     public required DateTimeOffset CreatedOn { get; init; }
 
-    public bool IsCompleted { get; set; }
+    public required bool IsCompleted { get; set; }
+
+    public bool CanPlan => !IsCompleted;
+
+    public required TaskItemPlanning Planning { get; init; }
 }
