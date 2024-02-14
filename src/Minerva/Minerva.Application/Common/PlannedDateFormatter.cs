@@ -41,8 +41,8 @@ public static class PlannedDateFormatter
             return null;
         }
 
-        var valueWeekStart = GetWeekStart(value!.Value);
-        var currentWeekStart = GetWeekStart(DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime));
+        var valueWeekStart = PlanningCalculator.GetWeekStart(value!.Value);
+        var currentWeekStart = PlanningCalculator.GetWeekStart(DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime));
         var weekDiff = (valueWeekStart.DayNumber - currentWeekStart.DayNumber) / 7;
 
         return weekDiff switch
@@ -54,21 +54,7 @@ public static class PlannedDateFormatter
         };
     }
 
-    private static DateOnly GetWeekStart(DateOnly value)
-    {
-        var currentWeekStart = value.DayOfWeek switch
-        {
-            DayOfWeek.Monday => value,
-            DayOfWeek.Tuesday => value.AddDays(-1),
-            DayOfWeek.Wednesday => value.AddDays(-2),
-            DayOfWeek.Thursday => value.AddDays(-3),
-            DayOfWeek.Friday => value.AddDays(-4),
-            DayOfWeek.Saturday => value.AddDays(-5),
-            DayOfWeek.Sunday => value.AddDays(-6),
-            _ => throw new ArgumentOutOfRangeException()
-        };
-        return currentWeekStart;
-    }
+
 
     public static string? FormatDayPlanning(this DateOnly? value, TimeProvider timeProvider)
     {

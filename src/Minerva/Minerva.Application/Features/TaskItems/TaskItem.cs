@@ -34,6 +34,14 @@ public class TaskItem : Entity
         Status = TaskItemStatus.Complete;
         CompletedOn = DateTime.UtcNow;
     }
+
+    public void Plan(TaskItemPlanningType taskItemPlanningType, DateOnly date)
+    {
+        var builder = new TaskItemPlanningBuilder(Planning);
+        builder.WithPlan(taskItemPlanningType, date);
+
+        Planning = builder.Build();
+    }
 }
 
 public enum TaskItemStatus
