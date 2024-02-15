@@ -5,10 +5,17 @@ internal class PlanningCalculator
 {
     public static bool IsInBoundary(TaskItemPlanningType planningType, DateOnly date, TaskItemPlanningType boundaryType, DateOnly boundaryValue)
     {
+        if (planningType > boundaryType)
+        {
+            return false;
+        }
+
         var boundary = GetBoundaries(boundaryType, boundaryValue);
         var checkInterval = GetBoundaries(planningType, date);
 
-        return checkInterval.end > boundary.start || checkInterval.start < boundary.end;
+        return (checkInterval.start >= boundary.start && checkInterval.end <= boundary.end) ||
+            (checkInterval.start <= boundary.start && checkInterval.end >= boundary.start && checkInterval.end <= boundary.end) ||
+            (checkInterval.start >= boundary.start && checkInterval.start <= boundary.end && checkInterval.end >= boundary.end);
     }
 
     public static (DateOnly start, DateOnly end) GetBoundaries(TaskItemPlanningType planningType, DateOnly date)

@@ -61,4 +61,54 @@ public class PlanningCalculatorTests
         Assert.Equal(expectedEndDate, result.end);
     }
 
+    [Theory]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-01", TaskItemPlanningType.Day, "2024-01-01")]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-03", TaskItemPlanningType.Week, "2024-01-01")]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-03", TaskItemPlanningType.Week, "2024-01-05")]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-07", TaskItemPlanningType.Week, "2024-01-05")]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-01", TaskItemPlanningType.Month, "2024-01-01")]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-15", TaskItemPlanningType.Month, "2024-01-20")]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-31", TaskItemPlanningType.Month, "2024-01-15")]
+    [InlineData(TaskItemPlanningType.Week, "2024-01-01", TaskItemPlanningType.Week, "2024-01-03")]
+    [InlineData(TaskItemPlanningType.Week, "2024-01-03", TaskItemPlanningType.Week, "2024-01-01")]
+    [InlineData(TaskItemPlanningType.Week, "2024-03-03", TaskItemPlanningType.Month, "2024-02-29")]
+    [InlineData(TaskItemPlanningType.Week, "2024-02-29", TaskItemPlanningType.Month, "2024-03-02")]
+    public void IsInBoundary_WhenInBoundary_ReturnsTrue(TaskItemPlanningType type, string date, TaskItemPlanningType boundaryType, string boundaryDate)
+    {
+        var inputDateValue = DateOnly.FromDateTime(DateTime.Parse(date));
+        var boundaryDateValue = DateOnly.FromDateTime(DateTime.Parse(boundaryDate));
+
+        var result = PlanningCalculator.IsInBoundary(type, inputDateValue, boundaryType, boundaryDateValue);
+
+        Assert.True(result);
+    }
+
+
+    [Theory]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-01", TaskItemPlanningType.Day, "2024-01-02")]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-03", TaskItemPlanningType.Week, "2024-01-08")]
+    [InlineData(TaskItemPlanningType.Day, "2024-01-01", TaskItemPlanningType.Month, "2024-02-01")]
+    [InlineData(TaskItemPlanningType.Day, "2023-12-15", TaskItemPlanningType.Month, "2024-01-20")]
+    [InlineData(TaskItemPlanningType.Week, "2024-01-02", TaskItemPlanningType.Day, "2024-01-09")]
+    [InlineData(TaskItemPlanningType.Week, "2024-01-01", TaskItemPlanningType.Week, "2024-01-09")]
+    [InlineData(TaskItemPlanningType.Week, "2024-03-06", TaskItemPlanningType.Month, "2024-02-25")]
+    [InlineData(TaskItemPlanningType.Week, "2024-02-29", TaskItemPlanningType.Month, "2024-04-02")]
+    [InlineData(TaskItemPlanningType.Month, "2024-01-03", TaskItemPlanningType.Day, "2024-02-07")]
+    [InlineData(TaskItemPlanningType.Month, "2024-01-01", TaskItemPlanningType.Week, "2024-01-09")]
+    [InlineData(TaskItemPlanningType.Month, "2024-01-01", TaskItemPlanningType.Week, "2024-01-04")]
+    [InlineData(TaskItemPlanningType.Month, "2024-02-29", TaskItemPlanningType.Week, "2024-03-02")]
+    [InlineData(TaskItemPlanningType.Month, "2024-03-03", TaskItemPlanningType.Week, "2024-02-29")]
+    [InlineData(TaskItemPlanningType.Month, "2024-01-05", TaskItemPlanningType.Week, "2024-01-07")]
+    [InlineData(TaskItemPlanningType.Month, "2022-12-26", TaskItemPlanningType.Week, "2023-01-01")]
+
+    public void IsInBoundary_WhenNotInBoundary_ReturnsFalse(TaskItemPlanningType type, string date, TaskItemPlanningType boundaryType, string boundaryDate)
+    {
+        var inputDateValue = DateOnly.FromDateTime(DateTime.Parse(date));
+        var boundaryDateValue = DateOnly.FromDateTime(DateTime.Parse(boundaryDate));
+
+        var result = PlanningCalculator.IsInBoundary(type, inputDateValue, boundaryType, boundaryDateValue);
+
+        Assert.False(result);
+    }
+
 }
