@@ -31,7 +31,7 @@ internal class PlanningCalculator
     public static (DateOnly start, DateOnly end) GetWeekBoundary(DateOnly date)
     {
         var weekStart = GetWeekStart(date);
-        var weekEnd = weekStart.AddDays(7);
+        var weekEnd = weekStart.AddDays(6);
 
         return (weekStart, weekEnd);
     }
