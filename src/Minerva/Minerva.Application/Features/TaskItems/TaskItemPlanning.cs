@@ -1,11 +1,45 @@
-﻿using Humanizer;
-using Minerva.Application.Common;
+﻿using Minerva.Application.Common;
 using BoundaryCheckParams = (Minerva.Application.Features.TaskItems.TaskItemPlanningType type, System.DateOnly date, Minerva.Application.Features.TaskItems.TaskItemPlanningType targetType, System.DateOnly targetDate);
 
 namespace Minerva.Application.Features.TaskItems;
-public record TaskItemPlanning(TaskItemPlanningType PlanningType, DateOnly? DayValue, DateOnly? WeekValue, DateOnly? MonthValue)
+public record TaskItemPlanning
 {
-    public static TaskItemPlanning None { get; } = new(TaskItemPlanningType.None, null, null, null);
+    public TaskItemPlanning()
+    {
+        PlanningType = TaskItemPlanningType.None;
+    }
+
+    public TaskItemPlanning(DateOnly? dayValue, DateOnly? weekValue, DateOnly? monthValue)
+    {
+        if (dayValue.HasValue)
+        {
+            PlanningType |= TaskItemPlanningType.Day;
+            DayValue = dayValue.Value;
+        }
+
+        if (weekValue.HasValue)
+        {
+            PlanningType |= TaskItemPlanningType.Week;
+            WeekValue = PlanningCalculator.GetWeekStart(weekValue.Value);
+        }
+
+        if (monthValue.HasValue)
+        {
+            PlanningType |= TaskItemPlanningType.Month;
+            MonthValue = PlanningCalculator.GetMonthStart(monthValue.Value);
+        }
+    }
+
+    public TaskItemPlanningType PlanningType { get; init; }
+
+    public DateOnly? DayValue { get; }
+
+    public DateOnly? MonthValue { get; }
+
+    public DateOnly? WeekValue { get; }
+
+
+    public static TaskItemPlanning None { get; } = new(null, null, null);
 
     public string? DayDisplayValue => DayValue.HasValue ? DayValue.Format(TaskItemPlanningType.Day, TimeProvider.System) : null;
 
@@ -25,28 +59,25 @@ public record TaskItemPlanning(TaskItemPlanningType PlanningType, DateOnly? DayV
         }
     }
 
-    public DateOnly? GetDate(TaskItemPlanningType planningType)
+    public DateOnly? GetDate(TaskItemPlanningType planningType) => planningType switch
     {
-        return planningType switch
-        {
-            TaskItemPlanningType.Day => DayValue,
-            TaskItemPlanningType.Week => WeekValue,
-            TaskItemPlanningType.Month => MonthValue,
-            _ => throw new NotSupportedException()
-        };
-    }
+        TaskItemPlanningType.Day => DayValue,
+        TaskItemPlanningType.Week => WeekValue,
+        TaskItemPlanningType.Month => MonthValue,
+        _ => throw new NotSupportedException()
+    };
 
 }
 
 public class TaskItemPlanningBuilder
 {
-    private readonly Dictionary<TaskItemPlanningType, DateOnly> planningOptions = new();
+    private readonly Dictionary<TaskItemPlanningType, DateOnly> planningOptions = [];
 
     public TaskItemPlanningBuilder(TaskItemPlanning taskItemPlanning)
     {
-        foreach (var plan in taskItemPlanning.EnumeratePlannedOptions())
+        foreach (var (type, date) in taskItemPlanning.EnumeratePlannedOptions())
         {
-            planningOptions.Add(plan.type, plan.date);
+            planningOptions.Add(type, date);
         }
     }
 
@@ -91,9 +122,10 @@ public class TaskItemPlanningBuilder
                 continue;
             }
 
-            if (PlanningCalculator.IsInBoundary(boundaryCheckParams.type, boundaryCheckParams.date, boundaryCheckParams.targetType, boundaryCheckParams.targetDate))
+            if (!PlanningCalculator.IsInBoundary(boundaryCheckParams.type, boundaryCheckParams.date, boundaryCheckParams.targetType, boundaryCheckParams.targetDate))
             {
-                planningOptions.Remove(type.Key);
+                _ = planningOptions.Remove(type.Key);
+
             }
         }
 
@@ -113,18 +145,9 @@ public class TaskItemPlanningBuilder
 
     public TaskItemPlanning Build()
     {
-        var type = planningOptions.Keys.Aggregate(TaskItemPlanningType.None, (current, planningType) => current | planningType);
-        return new TaskItemPlanning(type, TryResolveDate(TaskItemPlanningType.Day), TryResolveDate(TaskItemPlanningType.Week), TryResolveDate(TaskItemPlanningType.Month));
+        return new TaskItemPlanning(TryResolveDate(TaskItemPlanningType.Day), TryResolveDate(TaskItemPlanningType.Week), TryResolveDate(TaskItemPlanningType.Month));
 
-        DateOnly? TryResolveDate(TaskItemPlanningType type)
-        {
-            if (planningOptions.TryGetValue(type, out var date))
-            {
-                return date;
-            }
-
-            return null;
-        }
+        DateOnly? TryResolveDate(TaskItemPlanningType type) => planningOptions.TryGetValue(type, out var date) ? date : null;
     }
 
 
