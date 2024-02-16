@@ -25,38 +25,32 @@
                     {
                         <FluentBadge>@PlannedDateFormatter.Format(planOption.date, planOption.type, TimeProvider.System)</FluentBadge>
                     }
+                    <FluentIcon id="@ItemMenuId" Value="@(new Icons.Regular.Size20.Calendar())" @onclick="()=>OpenPlanMenu()"></FluentIcon>
                 </FluentStack>
             </FluentStack>
-        </FluentGridItem>
-        <FluentGridItem sm="1">
-            <FluentIcon id="@ItemMenuId" Value="@(new Icons.Regular.Size20.Calendar())" @onclick="()=>OpenPlanMenu()"></FluentIcon>
         </FluentGridItem>
     </FluentGrid>
 </FluentCard>
 @if (Item.CanPlan)
 {
     <FluentMenu Anchor="@ItemMenuId" @bind-Open="planningMenuOpen">
-        <FluentMenuItem Label="Planning">
-            <MenuItems>
-                <FluentMenuItem>
-                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanToday()">Today</FluentLabel>
-                </FluentMenuItem>
-                <FluentMenuItem>
-                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanTomorrow()">Tomorrow</FluentLabel>
-                </FluentMenuItem>
-                <FluentMenuItem>
-                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanThisWeek()">This Week</FluentLabel>
-                </FluentMenuItem>
-                <FluentMenuItem>
-                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanNextWeek()">Next Week</FluentLabel>
-                </FluentMenuItem>
-                <FluentMenuItem>
-                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanThisMonth()">This Month</FluentLabel>
-                </FluentMenuItem>
-                <FluentMenuItem>
-                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanNextMonth()">Next Month</FluentLabel>
-                </FluentMenuItem>
-            </MenuItems>
+        <FluentMenuItem>
+            <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanToday()">Today</FluentLabel>
+        </FluentMenuItem>
+        <FluentMenuItem>
+            <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanTomorrow()">Tomorrow</FluentLabel>
+        </FluentMenuItem>
+        <FluentMenuItem>
+            <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanThisWeek()">This Week</FluentLabel>
+        </FluentMenuItem>
+        <FluentMenuItem>
+            <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanNextWeek()">Next Week</FluentLabel>
+        </FluentMenuItem>
+        <FluentMenuItem>
+            <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanThisMonth()">This Month</FluentLabel>
+        </FluentMenuItem>
+        <FluentMenuItem>
+            <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanNextMonth()">Next Month</FluentLabel>
         </FluentMenuItem>
     </FluentMenu>
 }
@@ -94,64 +88,46 @@
         }
     }
 
-    private async Task PlanToday()
+    private async Task PlanTaskItem(TaskItemPlanningType type, DateOnly date)
     {
-        await mediator.Send(new PlanTaskItemCommand()
+        var result = await mediator.Send(new PlanTaskItemCommand()
             {
                 TaskItemId = Item.Id,
-                Date = DateOnly.FromDateTime(DateTime.Now),
-                PlanType = TaskItemPlanningType.Day
+                Date = date,
+                PlanType = type
             });
+
+        Item.Planning = result.Result!;
+    }
+
+    private async Task PlanToday()
+    {
+        await PlanTaskItem(TaskItemPlanningType.Day, DateOnly.FromDateTime(DateTime.Now));
     }
 
     private async Task PlanTomorrow()
     {
-        await mediator.Send(new PlanTaskItemCommand()
-            {
-                TaskItemId = Item.Id,
-                Date = DateOnly.FromDateTime(DateTime.Now).AddDays(1),
-                PlanType = TaskItemPlanningType.Day
-            });
+        await PlanTaskItem(TaskItemPlanningType.Day, DateOnly.FromDateTime(DateTime.Now).AddDays(1));
     }
 
     private async Task PlanThisWeek()
     {
-        await mediator.Send(new PlanTaskItemCommand()
-            {
-                TaskItemId = Item.Id,
-                Date = DateOnly.FromDateTime(DateTime.Now),
-                PlanType = TaskItemPlanningType.Week
-            });
+        await PlanTaskItem(TaskItemPlanningType.Week, DateOnly.FromDateTime(DateTime.Now).AddDays(1));
     }
 
     private async Task PlanNextWeek()
     {
-        await mediator.Send(new PlanTaskItemCommand()
-            {
-                TaskItemId = Item.Id,
-                Date = DateOnly.FromDateTime(DateTime.Now).AddDays(7),
-                PlanType = TaskItemPlanningType.Week
-            });
+        await PlanTaskItem(TaskItemPlanningType.Week, DateOnly.FromDateTime(DateTime.Now).AddDays(7));
     }
 
     private async Task PlanThisMonth()
     {
-        await mediator.Send(new PlanTaskItemCommand()
-            {
-                TaskItemId = Item.Id,
-                Date = DateOnly.FromDateTime(DateTime.Now),
-                PlanType = TaskItemPlanningType.Month
-            });
+        await PlanTaskItem(TaskItemPlanningType.Month, DateOnly.FromDateTime(DateTime.Now));
     }
 
     private async Task PlanNextMonth()
     {
-        await mediator.Send(new PlanTaskItemCommand()
-            {
-                TaskItemId = Item.Id,
-                Date = DateOnly.FromDateTime(DateTime.Now).AddMonths(1),
-                PlanType = TaskItemPlanningType.Month
-            });
+        await PlanTaskItem(TaskItemPlanningType.Month, DateOnly.FromDateTime(DateTime.Now).AddMonths(1));
     }
 
     private void OpenPlanMenu()

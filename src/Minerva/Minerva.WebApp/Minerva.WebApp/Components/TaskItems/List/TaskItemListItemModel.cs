@@ -18,5 +18,5 @@ public class TaskItemListItemModel
 
     public bool CanPlan => !IsCompleted;
 
-    public required TaskItemPlanning Planning { get; init; }
+    public required TaskItemPlanning Planning { get; set; }
 }
