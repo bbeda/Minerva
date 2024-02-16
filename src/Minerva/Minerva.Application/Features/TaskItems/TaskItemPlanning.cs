@@ -32,11 +32,11 @@ public record TaskItemPlanning
 
     public TaskItemPlanningType PlanningType { get; init; }
 
-    public DateOnly? DayValue { get; }
+    public DateOnly? DayValue { get; private init; }
 
-    public DateOnly? MonthValue { get; }
+    public DateOnly? MonthValue { get; private init; }
 
-    public DateOnly? WeekValue { get; }
+    public DateOnly? WeekValue { get; private init; }
 
 
     public static TaskItemPlanning None { get; } = new(null, null, null);

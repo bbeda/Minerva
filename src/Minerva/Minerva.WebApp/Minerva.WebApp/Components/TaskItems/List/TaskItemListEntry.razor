@@ -1,5 +1,6 @@
 ﻿﻿@using MediatR
 @using Minerva.Application.Features.TaskItems
+@using Minerva.Application.Common
 
 @inject IMediator mediator
 
@@ -20,6 +21,10 @@
                 <FluentLabel Typo="Typography.Subject">@Item.Title</FluentLabel>
                 <FluentLabel Typo="Typography.Body">@Item.Description</FluentLabel>
                 <FluentStack Orientation="Orientation.Horizontal">
+                    @foreach (var planOption in Item.Planning.EnumeratePlannedOptions())
+                    {
+                        <FluentBadge>@PlannedDateFormatter.Format(planOption.date, planOption.type, TimeProvider.System)</FluentBadge>
+                    }
                 </FluentStack>
             </FluentStack>
         </FluentGridItem>
@@ -41,6 +46,15 @@
                 </FluentMenuItem>
                 <FluentMenuItem>
                     <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanThisWeek()">This Week</FluentLabel>
+                </FluentMenuItem>
+                <FluentMenuItem>
+                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanNextWeek()">Next Week</FluentLabel>
+                </FluentMenuItem>
+                <FluentMenuItem>
+                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanThisMonth()">This Month</FluentLabel>
+                </FluentMenuItem>
+                <FluentMenuItem>
+                    <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanNextMonth()">Next Month</FluentLabel>
                 </FluentMenuItem>
             </MenuItems>
         </FluentMenuItem>
@@ -82,40 +96,62 @@
 
     private async Task PlanToday()
     {
-        // await mediator.Send(new PlanTaskItemCommand()
-        //     {
-        //         TaskItemId = Item.Id,
-        //         Date = DateOnly.FromDateTime(DateTime.Now),
-        //         PlanType = TaskItemPlanningPeriond.Day
-        //     });
-
-        throw new NotImplementedException();
-
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = Item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now),
+                PlanType = TaskItemPlanningType.Day
+            });
     }
 
     private async Task PlanTomorrow()
     {
-        // await mediator.Send(new PlanTaskItemCommand()
-        //     {
-        //         TaskItemId = Item.Id,
-        //         Date = DateOnly.FromDateTime(DateTime.Now).AddDays(1),
-        //         PlanType = TaskItemPlanningPeriond.Day
-        //     });
-
-        throw new NotImplementedException();
-
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = Item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now).AddDays(1),
+                PlanType = TaskItemPlanningType.Day
+            });
     }
 
     private async Task PlanThisWeek()
     {
-        // await mediator.Send(new PlanTaskItemCommand()
-        //     {
-        //         TaskItemId = Item.Id,
-        //         Date = DateOnly.FromDateTime(DateTime.Now),
-        //         PlanType = TaskItemPlanningPeriond.Week
-        //     });
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = Item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now),
+                PlanType = TaskItemPlanningType.Week
+            });
+    }
 
-        throw new NotImplementedException();
+    private async Task PlanNextWeek()
+    {
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = Item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now).AddDays(7),
+                PlanType = TaskItemPlanningType.Week
+            });
+    }
+
+    private async Task PlanThisMonth()
+    {
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = Item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now),
+                PlanType = TaskItemPlanningType.Month
+            });
+    }
+
+    private async Task PlanNextMonth()
+    {
+        await mediator.Send(new PlanTaskItemCommand()
+            {
+                TaskItemId = Item.Id,
+                Date = DateOnly.FromDateTime(DateTime.Now).AddMonths(1),
+                PlanType = TaskItemPlanningType.Month
+            });
     }
 
     private void OpenPlanMenu()
