@@ -23,9 +23,12 @@
                 <FluentStack Orientation="Orientation.Horizontal">
                     @foreach (var planOption in Item.Planning.EnumeratePlannedOptions())
                     {
-                        <FluentBadge>@PlannedDateFormatter.Format(planOption.date, planOption.type, TimeProvider.System)</FluentBadge>
+                        <FluentBadge>@PlannedDateFormatter.Format(planOption.date, planOption.type, TimeProvider.System) <FluentIcon Value="@(new Icons.Regular.Size12.Dismiss())" @onclick="async ()=>await RemovePlanning(planOption.type)"></FluentIcon></FluentBadge>
                     }
-                    <FluentIcon id="@ItemMenuId" Value="@(new Icons.Regular.Size20.Calendar())" @onclick="()=>OpenPlanMenu()"></FluentIcon>
+                    @if (Item.CanPlan)
+                    {
+                        <FluentIcon id="@ItemMenuId" Value="@(new Icons.Regular.Size20.Calendar())" @onclick="()=>OpenPlanMenu()"></FluentIcon>
+                    }
                 </FluentStack>
             </FluentStack>
         </FluentGridItem>
@@ -128,6 +131,11 @@
     private async Task PlanNextMonth()
     {
         await PlanTaskItem(TaskItemPlanningType.Month, DateOnly.FromDateTime(DateTime.Now).AddMonths(1));
+    }
+
+    private async Task RemovePlanning(TaskItemPlanningType planningType)
+    {
+        
     }
 
     private void OpenPlanMenu()
