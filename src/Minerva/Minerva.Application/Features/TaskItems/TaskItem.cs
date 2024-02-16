@@ -42,6 +42,14 @@ public class TaskItem : Entity
 
         Planning = builder.Build();
     }
+
+    public void RemovePlans(TaskItemPlanningType taskItemPlanningType)
+    {
+        var builder = new TaskItemPlanningBuilder(Planning);
+        builder.RemovePlans(taskItemPlanningType);
+
+        Planning = builder.Build();
+    }
 }
 
 public enum TaskItemStatus

@@ -38,6 +38,9 @@
 {
     <FluentMenu Anchor="@ItemMenuId" @bind-Open="planningMenuOpen">
         <FluentMenuItem>
+            <FluentLabel Typo="Typography.Body" @onclick="async ()=>await RemovePlanning(TaskItemPlanningType.Day|TaskItemPlanningType.Week|TaskItemPlanningType.Month)">Clear</FluentLabel>
+        </FluentMenuItem>
+        <FluentMenuItem>
             <FluentLabel Typo="Typography.Body" @onclick="async ()=>await PlanToday()">Today</FluentLabel>
         </FluentMenuItem>
         <FluentMenuItem>
@@ -135,7 +138,13 @@
 
     private async Task RemovePlanning(TaskItemPlanningType planningType)
     {
-        
+        var result = await mediator.Send(new RemoveTaskItemPlanCommand()
+            {
+                TaskItemId = Item.Id,
+                Types = planningType
+            });
+
+        Item.Planning = result.Result!;
     }
 
     private void OpenPlanMenu()

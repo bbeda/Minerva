@@ -109,6 +109,16 @@ public class TaskItemPlanningBuilder
         return this;
     }
 
+    public TaskItemPlanningBuilder RemovePlans(TaskItemPlanningType type)
+    {
+        foreach (var option in type.Flags())
+        {
+            _ = planningOptions.Remove(option);
+        }
+
+        return this;
+    }
+
     private void UpdatePlanningOptions(DateOnly date, TaskItemPlanningType targetType)
     {
         var (startDate, endDate) = PlanningCalculator.GetBoundaries(targetType, date);
