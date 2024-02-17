@@ -14,6 +14,8 @@ public class TaskItem : Entity
 
     public DateTimeOffset? CompletedOn { get; private set; }
 
+    public TaskItemPlanning Planning { get; set; } = TaskItemPlanning.None;
+
     [SetsRequiredMembers]
     public TaskItem(
         string title,
@@ -31,6 +33,22 @@ public class TaskItem : Entity
     {
         Status = TaskItemStatus.Complete;
         CompletedOn = DateTime.UtcNow;
+    }
+
+    public void Plan(TaskItemPlanningType taskItemPlanningType, DateOnly date)
+    {
+        var builder = new TaskItemPlanningBuilder(Planning);
+        builder.WithPlan(taskItemPlanningType, date);
+
+        Planning = builder.Build();
+    }
+
+    public void RemovePlans(TaskItemPlanningType taskItemPlanningType)
+    {
+        var builder = new TaskItemPlanningBuilder(Planning);
+        builder.RemovePlans(taskItemPlanningType);
+
+        Planning = builder.Build();
     }
 }
 

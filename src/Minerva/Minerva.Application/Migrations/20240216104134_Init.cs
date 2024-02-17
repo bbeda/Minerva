@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Minerva.Application.Migrations
 {
     /// <inheritdoc />
-    public partial class InitMigration : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,6 +19,12 @@ namespace Minerva.Application.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
                     DueDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    CompletedOn = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    Planning_DayValue = table.Column<DateOnly>(type: "date", nullable: true),
+                    Planning_MonthValue = table.Column<DateOnly>(type: "date", nullable: true),
+                    Planning_PlanningType = table.Column<int>(type: "integer", nullable: false),
+                    Planning_WeekValue = table.Column<DateOnly>(type: "date", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false)
                 },

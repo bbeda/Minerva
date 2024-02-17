@@ -18,24 +18,7 @@
     {
         @foreach (var item in TaskItems)
         {
-            <FluentCard>
-                <FluentGrid>
-                    <FluentGridItem>
-                        @if (item.IsCompleted)
-                        {
-                            <FluentIcon Value="@(new Icons.Filled.Size20.CheckmarkCircle())" @onclick="async ()=>await UncompleteTaskItemAsync(item)" Color="Color.Success"></FluentIcon>
-                        }
-                        else
-                        {
-                            <FluentIcon Value="@(new Icons.Regular.Size20.Circle())" @onclick="async ()=>await CompleteTaskItemAsync(item)"></FluentIcon>
-                        }
-                    </FluentGridItem>
-                    <FluentGridItem Style="@CompletedStyle(item)">
-                        <FluentLabel Typo="Typography.Subject">@item.Title</FluentLabel>
-                        <FluentLabel Typo="Typography.Body">@item.Description</FluentLabel>
-                    </FluentGridItem>
-                </FluentGrid>
-            </FluentCard>
+           <TaskItemListEntry Item="item"/>
         }
     }
 

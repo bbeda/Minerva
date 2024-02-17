@@ -21,7 +21,8 @@ internal class QueryBacklogRequestHandler(DataContext dataContext) : IStreamRequ
                 Description = ti.Description,
                 DueDate = ti.DueDate,
                 CreatedOn = ti.CreatedAt,
-                IsCompleted = ti.Status == TaskItemStatus.Complete
+                IsCompleted = ti.Status == TaskItemStatus.Complete,
+                Planning = ti.Planning
             }).AsAsyncEnumerable();
     }
 }

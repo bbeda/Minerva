@@ -27,4 +27,8 @@ public record CommandResult<TResult> : CommandResult
     public CommandResult(string error, IReadOnlyCollection<ValidationFailure> errors) : base(error, errors)
     {
     }
+
+    public CommandResult(string error) : base(error, [])
+    {
+    }
 }
