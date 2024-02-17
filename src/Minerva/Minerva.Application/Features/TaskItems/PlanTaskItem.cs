@@ -11,7 +11,8 @@ public class PlanTaskItemCommand : IRequest<CommandResult<TaskItemPlanning>>
 
 internal class PlanTaskItemCommandHandler(
        ITaskItemRepository taskItemRepository,
-       IUnitOfWork unitOfWork)
+       IUnitOfWork unitOfWork,
+       INotificationsBroker<TaskItemUpdated> taskItemUpdatedNotifications)
     : IRequestHandler<PlanTaskItemCommand, CommandResult<TaskItemPlanning>>
 {
     public async Task<CommandResult<TaskItemPlanning>> Handle(PlanTaskItemCommand request, CancellationToken cancellationToken)
@@ -24,8 +25,10 @@ internal class PlanTaskItemCommandHandler(
         }
 
         taskItem.Plan(request.PlanType, request.Date);
+        taskItem.Title = $"Task item {DateTime.UtcNow.Ticks}";
 
         _ = await unitOfWork.SaveChangesAsync(cancellationToken);
+        await taskItemUpdatedNotifications.Handle(new TaskItemUpdated() { TaskItem = taskItem }, cancellationToken);
 
         return new CommandResult<TaskItemPlanning>(taskItem.Planning);
     }
