@@ -27,7 +27,7 @@ public static class ConfigureServices
             return sp.GetRequiredService<DataContext>();
         });
 
-        services.AddSingleton(typeof(INotificationsBroker<>), typeof(NotificationsBroker<>));
+        services.AddSingleton(typeof(INotificationsBus<>), typeof(NotificationsBus<>));
 
         return services;
     }

@@ -2,12 +2,7 @@
 @using Minerva.Application.Features.TaskItems
 @using Minerva.Application.Common
 
-@rendermode InteractiveServer
-
-@implements IDisposable
-
 @inject IMediator mediator
-@inject INotificationsBroker<TaskItemUpdated> notificationsBroker
 
 <FluentCard style="border-style:solid;border-color:gray;border-width:1px;width:100%">
     <FluentGrid Style="width:100%">
@@ -67,9 +62,6 @@
 }
 
 @code {
-
-    private readonly List<IDisposable> disposables = new List<IDisposable>();
-
     [Parameter]
     public TaskItemListItemModel Item { get; set; }
 
@@ -79,12 +71,6 @@
     private string ItemMenuId { get; init; } = $"item-menu-{Guid.NewGuid()}";
 
     private bool planningMenuOpen = false;
-
-    override protected async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        disposables.Add(notificationsBroker.Subscribe(EventCallback.Factory.Create<TaskItemUpdated>(this, OnTaskItemUpdated)));
-    }
 
     private Task OnTaskItemUpdated(TaskItemUpdated notification)
     {
@@ -104,14 +90,6 @@
         }
 
         return Task.CompletedTask;
-    }
-
-    public void Dispose()
-    {
-        foreach (var disposable in disposables)
-        {
-            disposable.Dispose();
-        }
     }
 
     private string CompletedStyle(TaskItemListItemModel item)
