@@ -72,6 +72,26 @@
 
     private bool planningMenuOpen = false;
 
+    private Task OnTaskItemUpdated(TaskItemUpdated notification)
+    {
+        if (notification.TaskItem.Id == Item.Id)
+        {
+            Item = new TaskItemListItemModel()
+                {
+                    CreatedOn = notification.TaskItem.CreatedAt,
+                    Description = notification.TaskItem.Description,
+                    DueDate = notification.TaskItem.DueDate,
+                    Id = notification.TaskItem.Id,
+                    IsCompleted = notification.TaskItem.Status == TaskItemStatus.Complete,
+                    Planning = notification.TaskItem.Planning,
+                    Title = notification.TaskItem.Title
+                };
+            StateHasChanged();
+        }
+
+        return Task.CompletedTask;
+    }
+
     private string CompletedStyle(TaskItemListItemModel item)
     {
         return item.IsCompleted ? "text-decoration: line-through" : "";

@@ -27,9 +27,7 @@ public static class ConfigureServices
             return sp.GetRequiredService<DataContext>();
         });
 
-        services.AddScoped(typeof(INotificationHandler<TaskItemCompletedNotification>), sc => sc.GetRequiredService(typeof(INotificationsBroker<TaskItemCompletedNotification>)));
-
-        services.AddSingleton(typeof(INotificationsBroker<>), typeof(MediatorNotificationsBroker<>));
+        services.AddSingleton(typeof(INotificationsBus<>), typeof(NotificationsBus<>));
 
         return services;
     }
