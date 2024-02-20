@@ -37,11 +37,17 @@ public class TaskItem : Entity
         CompletedOn = DateTime.UtcNow;
         foreach (var plan in Planning.EnumeratePlannedOptions())
         {
+            var status = PlanningCalculator.IsInBoundary(plan.type, DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().DateTime), plan.type, plan.date) switch
+            {
+                true => TaskItemPlanningResultOption.Success,
+                false => TaskItemPlanningResultOption.Failed
+            };
+
             var planResult = new TaskItemPlanningResultItem()
             {
                 PlanningDate = plan.date,
                 PlanningType = plan.type,
-                Result = TaskItemPlanningResultOption.Success,
+                Result = status,
                 TaskItemId = Id,
                 TenantId = TenantId,
                 Id = Guid.NewGuid()
