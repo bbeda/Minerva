@@ -7,6 +7,8 @@ internal class EntityTypeConfigurationBase<T> : IEntityTypeConfiguration<T> wher
     public virtual void Configure(EntityTypeBuilder<T> builder)
     {
         _ = builder.HasKey(entity => entity.Id);
+        builder.Property(entity => entity.Id)
+            .ValueGeneratedNever();
 
         _ = builder.Property(entity => entity.CreatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP")

@@ -1,5 +1,6 @@
 using Microsoft.FluentUI.AspNetCore.Components;
 using Minerva.Application;
+using Minerva.WebApp.BackgroundServices;
 using Minerva.WebApp.Client.Pages;
 using Minerva.WebApp.Components;
 using Minerva.WebApp.Components.TaskItems.Backlog;
@@ -16,6 +17,10 @@ builder.Services.AddFluentUIComponents();
 builder.Services.AddApplicationServices(builder.Configuration);
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(BacklogPage).Assembly));
+
+builder.Services.AddSingleton(sp => TimeProvider.System);
+
+builder.Services.AddHostedService<PlanningWatcherService>();
 
 
 var app = builder.Build();

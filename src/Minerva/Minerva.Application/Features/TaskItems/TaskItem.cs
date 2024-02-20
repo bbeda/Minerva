@@ -16,6 +16,8 @@ public class TaskItem : Entity
 
     public TaskItemPlanning Planning { get; set; } = TaskItemPlanning.None;
 
+    public ICollection<TaskItemPlanningResultItem> Plans { get; private set; } = [];
+
     [SetsRequiredMembers]
     public TaskItem(
         string title,
@@ -33,6 +35,20 @@ public class TaskItem : Entity
     {
         Status = TaskItemStatus.Complete;
         CompletedOn = DateTime.UtcNow;
+        foreach (var plan in Planning.EnumeratePlannedOptions())
+        {
+            var planResult = new TaskItemPlanningResultItem()
+            {
+                PlanningDate = plan.date,
+                PlanningType = plan.type,
+                Result = TaskItemPlanningResultOption.Success,
+                TaskItemId = Id,
+                TenantId = TenantId,
+                Id = Guid.NewGuid()
+            };
+
+            Plans.Add(planResult);
+        }
     }
 
     public void Plan(TaskItemPlanningType taskItemPlanningType, DateOnly date)
