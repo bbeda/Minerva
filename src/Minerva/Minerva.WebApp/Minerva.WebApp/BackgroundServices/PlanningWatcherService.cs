@@ -22,7 +22,8 @@ public class PlanningWatcherService(
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
             var command = new CheckAndUpdateTaskItemPlanStatusCommand();
             await mediator.Send(command);
-        }, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(120));
+        }, null, TimeSpan.FromSeconds(15), TimeSpan.FromMinutes(5));
+
         return Task.CompletedTask;
     }
     public Task StopAsync(CancellationToken cancellationToken)
